@@ -5,6 +5,7 @@ export enum RateName {
   Control = 'control',
   Join = 'join',
 }
+
 export const RATES: Record<
   RateName,
   {

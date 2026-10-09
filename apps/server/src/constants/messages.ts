@@ -1,4 +1,5 @@
 import { LIMITS, MIN_PLAYERS_TO_START } from '@doodle/shared'
+
 export const ERROR_MESSAGES = {
   onlyHostSettings: 'Only the host can change settings',
   settingsLocked: 'Settings are locked during a game',
@@ -16,6 +17,7 @@ export const ERROR_MESSAGES = {
   drawingTooFast: 'Drawing too fast',
   resyncTooOften: 'Resyncing too often',
 } as const
+
 export const JOIN_MESSAGES = {
   rateLimited: 'Too many attempts — wait a moment',
   invalid: 'Invalid request',
@@ -25,6 +27,7 @@ export const JOIN_MESSAGES = {
   roomFullMax: `Room is full (max ${LIMITS.maxPlayers} players)`,
   roomNotFound: 'That room does not exist (it may have ended)',
 } as const
+
 export const CHAT_MESSAGES = {
   joined: (name: string) => `${name} joined`,
   left: (name: string) => `${name} left`,
@@ -36,12 +39,15 @@ export const CHAT_MESSAGES = {
   drawerLeft: 'The drawer left — moving on',
   notEnoughPlayers: 'Not enough players to continue — back to the lobby',
 } as const
+
 export const NOTICE_MESSAGES = {
   drawerAway: (name: string, seconds: number) => `${name} lost connection — waiting up to ${seconds}s for them to return`,
 } as const
+
 export const KICK_REASONS = {
   replaced: 'This player opened the room in another tab',
 } as const
+
 export const VALIDATION_MESSAGES = {
   badId: 'bad shape id',
   strokeTooLarge: 'stroke is too large',

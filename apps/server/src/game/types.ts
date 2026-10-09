@@ -1,8 +1,10 @@
 import type { RoomSettings, ServerToClientEvents } from '@doodle/shared'
+
 export interface Conn {
   send: <E extends keyof ServerToClientEvents>(event: E, ...args: Parameters<ServerToClientEvents[E]>) => void
   close: (reason: string) => void
 }
+
 export interface Player {
   id: string
   token: string
@@ -13,6 +15,7 @@ export interface Player {
   conn: Conn | null
   graceTimer: ReturnType<typeof setTimeout> | null
 }
+
 export interface RoomOptions {
   chooseMs: number
   turnEndMs: number
@@ -21,7 +24,9 @@ export interface RoomOptions {
   onEmpty: () => void
   onChange: () => void
 }
+
 export type RoomHooks = Pick<RoomOptions, 'onEmpty' | 'onChange'>
+
 export interface RoomSnapshot {
   id: string
   settings: RoomSettings
@@ -33,6 +38,7 @@ export interface RoomSnapshot {
     avatar: number
   }[]
 }
+
 export interface SnapshotFile {
   savedAt: number
   rooms: RoomSnapshot[]

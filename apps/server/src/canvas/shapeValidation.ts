@@ -22,12 +22,14 @@ import {
   ShapeKind,
 } from '@doodle/shared'
 import { VALIDATION_MESSAGES as MSG } from '../constants/messages'
+
 const segmentSchema = z
   .object({
     type: z.nativeEnum(SegmentType),
     path: z.string().regex(BASE64_PATTERN).max(LIMITS.recordBytes),
   })
   .passthrough()
+
 const shapeSchema = z
   .object({
     id: z.string().regex(SHAPE_ID_PATTERN),
@@ -57,8 +59,10 @@ const shapeSchema = z
       .passthrough(),
   })
   .passthrough()
+
 const idSchema = z.string().regex(SHAPE_ID_PATTERN)
 export const isShapeId = (id: unknown): id is string => idSchema.safeParse(id).success
+
 export type Checked =
   | {
       ok: true
@@ -69,15 +73,21 @@ export type Checked =
       reason: CanvasRejectReason.Invalid | CanvasRejectReason.TooLarge
       message: string
     }
+
 const tooLarge = (): Checked => ({ ok: false, reason: CanvasRejectReason.TooLarge, message: MSG.strokeTooLarge })
+
 export const checkShape = (rec: unknown): Checked => {
   const parsed = shapeSchema.safeParse(rec)
+
   if (!parsed.success) {
     const [issue] = parsed.error.issues
+
     return issue.code === 'too_big' && issue.path.includes('path')
       ? tooLarge()
       : { ok: false, reason: CanvasRejectReason.Invalid, message: `${issue.path.join('.')}: ${issue.message}` }
   }
+
   const bytes = JSON.stringify(rec).length
+
   return bytes > LIMITS.recordBytes ? tooLarge() : { ok: true, bytes }
 }

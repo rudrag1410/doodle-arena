@@ -4,13 +4,17 @@ import type { Player } from './types'
 
 export const uniqueName = (name: string, players: Iterable<Player>): string => {
   const taken = new Set([...players].map((p) => p.name.toLowerCase()))
+
   if (!taken.has(name.toLowerCase())) return name
+
   const candidates = range(2, MAX_UNIQUE_NAME_SUFFIX).map((i) => `${name.slice(0, LIMITS.nameLen - NAME_SUFFIX_ROOM)} ${i}`)
+
   return find(candidates, (c) => !taken.has(c.toLowerCase())) ?? name
 }
 
 export const buildRanking = (players: Iterable<Player>): RankingEntry[] => {
   const sorted = orderBy([...players], 'score', 'desc')
+
   return sorted.map((p) => ({
     playerId: p.id,
     name: p.name,

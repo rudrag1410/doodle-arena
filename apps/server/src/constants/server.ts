@@ -1,15 +1,19 @@
 export const DEFAULT_PORT = 8080
 export const PATHS = { webDist: ['..', 'web', 'dist'], dataDir: 'data', snapshotFile: 'rooms.json' } as const
+
 export enum ProcessSignal {
   Interrupt = 'SIGINT',
   Terminate = 'SIGTERM',
 }
+
 export const DEFAULT_MAX_ROOMS = 20000
+
 export const SOCKET_OPTIONS = {
   pingIntervalMs: 10000,
   pingTimeoutMs: 8000,
   compress: false,
 } as const
+
 export const SNAPSHOT_INTERVAL_MS = 5000
 export const IP_BUCKET_MAX = 5000
 export const SHUTDOWN_FORCE_EXIT_MS = 1500

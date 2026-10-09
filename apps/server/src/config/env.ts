@@ -4,8 +4,10 @@ import { CHOOSE_WORD_MS, GRACE_MS, TURN_END_MS } from '@doodle/shared'
 import { DEFAULT_MAX_ROOMS, DEFAULT_PORT, PATHS } from '../constants/server'
 import { findPackageRoot } from '../utils/paths'
 import { ENV_OFF, ENV_ON, EnvVar } from './envVars'
+
 const packageRoot = findPackageRoot(dirname(fileURLToPath(import.meta.url)))
 const num = (name: EnvVar, fallback: number) => (process.env[name] ? Number(process.env[name]) : fallback)
+
 export const env = {
   port: num(EnvVar.Port, DEFAULT_PORT),
   maxRooms: num(EnvVar.MaxRooms, DEFAULT_MAX_ROOMS),

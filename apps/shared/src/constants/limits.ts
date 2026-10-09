@@ -11,6 +11,7 @@ export const LIMITS = {
   canvasBytes: 900000,
   replayEventsPerTurn: 4000,
 } as const
+
 export const MAX_MESSAGE_BYTES = 1000000
 export const MIN_CUSTOM_WORDS_ONLY = 3
 export const MIN_PLAYERS_TO_START = 2

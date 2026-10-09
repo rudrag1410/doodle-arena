@@ -5,6 +5,7 @@ export enum Phase {
   TurnEnd = 'turnEnd',
   GameEnd = 'gameEnd',
 }
+
 export enum ChatKind {
   Chat = 'chat',
   System = 'system',
@@ -12,11 +13,13 @@ export enum ChatKind {
   Close = 'close',
   Secret = 'secret',
 }
+
 export enum TurnEndReason {
   Time = 'time',
   AllGuessed = 'all-guessed',
   DrawerLeft = 'drawer-left',
 }
+
 export enum JoinErrorCode {
   RoomNotFound = 'ROOM_NOT_FOUND',
   RoomFull = 'ROOM_FULL',
@@ -24,16 +27,19 @@ export enum JoinErrorCode {
   RateLimited = 'RATE_LIMITED',
   ServerBusy = 'SERVER_BUSY',
 }
+
 export enum CanvasRejectReason {
   Rate = 'rate',
   Invalid = 'invalid',
   TooLarge = 'too-large',
   NotDrawer = 'not-drawer',
 }
+
 export enum ToastKind {
   Error = 'error',
   Info = 'info',
 }
+
 export enum ClientEvent {
   RoomCreate = 'room:create',
   RoomJoin = 'room:join',
@@ -47,6 +53,7 @@ export enum ClientEvent {
   Chat = 'chat',
   TimeSync = 'time:sync',
 }
+
 export enum ServerEvent {
   State = 'state',
   Chat = 'chat',
@@ -57,6 +64,7 @@ export enum ServerEvent {
   Toast = 'toast',
   Kicked = 'kicked',
 }
+
 export enum SocketLifecycle {
   Connection = 'connection',
   Connect = 'connect',
@@ -64,37 +72,45 @@ export enum SocketLifecycle {
   ConnectError = 'connect_error',
   Reconnect = 'reconnect',
 }
+
 export enum TransportKind {
   WebSocket = 'websocket',
 }
+
 export enum RecordTypeName {
   Shape = 'shape',
 }
+
 export enum ShapeKind {
   Draw = 'draw',
 }
+
 export enum SegmentType {
   Free = 'free',
   Straight = 'straight',
 }
+
 export enum FillStyle {
   None = 'none',
   Semi = 'semi',
   Solid = 'solid',
   Fill = 'fill',
 }
+
 export enum DashStyle {
   Draw = 'draw',
   Solid = 'solid',
   Dashed = 'dashed',
   Dotted = 'dotted',
 }
+
 export enum BrushSize {
   Small = 's',
   Medium = 'm',
   Large = 'l',
   ExtraLarge = 'xl',
 }
+
 export enum PaletteColor {
   Black = 'black',
   Grey = 'grey',
@@ -110,6 +126,7 @@ export enum PaletteColor {
   Violet = 'violet',
   LightViolet = 'light-violet',
 }
+
 export enum PackId {
   Classic = 'classic',
   Animals = 'animals',

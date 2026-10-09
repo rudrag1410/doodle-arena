@@ -1,4 +1,5 @@
 import { PackId } from '../enums'
+
 export const WORD_PACKS: readonly {
   id: PackId
   label: string
@@ -11,4 +12,5 @@ export const WORD_PACKS: readonly {
   { id: PackId.Places, label: 'Places & Travel', emoji: '🗺️' },
   { id: PackId.Tech, label: 'Tech & Science', emoji: '🚀' },
 ]
+
 export const PACK_IDS: readonly string[] = WORD_PACKS.map((p) => p.id)

@@ -1,6 +1,0 @@
-export * from './Game'
-export * from './GameEnd'
-export * from './Home'
-export * from './JoinGate'
-export * from './Lobby'
-export * from './StatusScreens'

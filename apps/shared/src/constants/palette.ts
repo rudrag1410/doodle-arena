@@ -1,4 +1,5 @@
 import { BrushSize, PaletteColor } from '../enums'
+
 export const PALETTE: readonly {
   id: PaletteColor
   hex: string
@@ -17,8 +18,10 @@ export const PALETTE: readonly {
   { id: PaletteColor.Violet, hex: '#ae3ec9' },
   { id: PaletteColor.LightViolet, hex: '#e085f4' },
 ]
+
 export const PALETTE_IDS: readonly string[] = PALETTE.map((c) => c.id)
 export const DEFAULT_COLOR = PaletteColor.Black
+
 export const BRUSH_SIZES: readonly {
   id: BrushSize
   dot: number
@@ -28,5 +31,6 @@ export const BRUSH_SIZES: readonly {
   { id: BrushSize.Large, dot: 17 },
   { id: BrushSize.ExtraLarge, dot: 24 },
 ]
+
 export const SIZE_IDS: readonly string[] = BRUSH_SIZES.map((s) => s.id)
 export const DEFAULT_BRUSH = BrushSize.Medium

@@ -10,5 +10,6 @@ export enum EnvVar {
   TrustProxy = 'TRUST_PROXY',
   IpRateLimit = 'IP_RATE_LIMIT',
 }
+
 export const ENV_ON = '1'
 export const ENV_OFF = 'off'

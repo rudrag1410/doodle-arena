@@ -1,27 +1,14 @@
 import { useEffect, useRef } from 'react'
 import { ChatKind, Phase, type RoomView } from '@doodle/shared'
-import { TICK_FROM_MS } from '../constants/sound'
-import { SoundEffect } from '../enums'
-import { playSound } from '../services/sound'
-import { useGame } from '../store'
+
+import { TICK_FROM_MS } from '@/constants/sound'
+import { SoundEffect } from '@/enums'
+import { playSound } from '@/services/sound'
+import { useGame } from '@/store'
 import { useRemaining } from './useRemaining'
+import { phaseSound } from '@/utils/sound'
 
 const MS_PER_SECOND = 1000
-
-const phaseSound = (view: RoomView): SoundEffect | null => {
-  switch (view.phase) {
-    case Phase.Choosing:
-      return view.drawerId === view.youId ? SoundEffect.YourTurn : null
-    case Phase.Drawing:
-      return SoundEffect.Start
-    case Phase.TurnEnd:
-      return SoundEffect.TurnEnd
-    case Phase.GameEnd:
-      return view.ranking?.find((r) => r.playerId === view.youId)?.rank === 1 ? SoundEffect.Win : SoundEffect.GameOver
-    default:
-      return null
-  }
-}
 
 export const useGameSounds = (view: RoomView) => {
   const lastChatId = useRef(useGame.getState().chat.at(-1)?.id)
@@ -34,9 +21,13 @@ export const useGameSounds = (view: RoomView) => {
     () =>
       useGame.subscribe((state) => {
         const message = state.chat.at(-1)
+
         if (!message || message.id === lastChatId.current) return
+
         lastChatId.current = message.id
+
         const mine = message.playerId === view.youId
+
         if (message.kind === ChatKind.Correct) playSound(mine ? SoundEffect.Success : SoundEffect.Correct)
         else if (message.kind === ChatKind.Close) playSound(SoundEffect.Close)
         else if (message.kind === ChatKind.Chat && !mine) playSound(SoundEffect.Pop)
@@ -46,28 +37,38 @@ export const useGameSounds = (view: RoomView) => {
 
   useEffect(() => {
     if (phase.current === view.phase) return
+
     phase.current = view.phase
+
     const effect = phaseSound(view)
+
     if (effect) playSound(effect)
   }, [view])
 
   useEffect(() => {
     if (view.phase !== Phase.Lobby) {
       players.current = view.players.length
+
       return
     }
+
     if (view.players.length > players.current) playSound(SoundEffect.Join)
     else if (view.players.length < players.current) playSound(SoundEffect.Leave)
+
     players.current = view.players.length
   }, [view.phase, view.players.length])
 
   useEffect(() => {
     if (view.phase !== Phase.Drawing || remaining <= 0 || remaining > TICK_FROM_MS) {
       lastSecond.current = null
+
       return
     }
+
     const second = Math.ceil(remaining / MS_PER_SECOND)
+
     if (second === lastSecond.current) return
+
     lastSecond.current = second
     playSound(SoundEffect.Tick)
   }, [remaining, view.phase])

@@ -14,6 +14,7 @@ import {
   type ShapeRecord,
 } from '@doodle/shared'
 import type { Conn, Player } from '../game/types'
+
 export const stroke = (id: string, path = 'AAAA', extra: Record<string, unknown> = {}): ShapeRecord => ({
   id: `${SHAPE_ID_PREFIX}${id}`,
   typeName: RecordTypeName.Shape,
@@ -36,6 +37,7 @@ export const stroke = (id: string, path = 'AAAA', extra: Record<string, unknown>
     ...extra,
   },
 })
+
 export interface TestBot {
   conn: Conn
   chats: ChatMessage[]
@@ -44,11 +46,13 @@ export interface TestBot {
   view: () => RoomView
   player?: Player
 }
+
 export function testBot(): TestBot {
   const chats: ChatMessage[] = []
   const closed: string[] = []
   const ops: unknown[] = []
   let view: RoomView | null = null
+
   const conn = {
     send: (event: ServerEvent, payload: unknown) => {
       if (event === ServerEvent.State) view = payload as RoomView
@@ -57,5 +61,6 @@ export function testBot(): TestBot {
     },
     close: (reason: string) => closed.push(reason),
   } as unknown as Conn
+
   return { conn, chats, closed, ops, view: () => view! }
 }

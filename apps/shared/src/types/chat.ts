@@ -1,4 +1,5 @@
 import type { ChatKind } from '../enums'
+
 export interface ChatMessage {
   id: string
   kind: ChatKind

@@ -1,4 +1,4 @@
-import { SoundEffect } from '../enums'
+import { SoundEffect } from '@/enums'
 
 export interface SoundNote {
   freq: number

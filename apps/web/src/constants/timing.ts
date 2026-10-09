@@ -11,6 +11,8 @@ export const BOARD_FLUSH_MS = 30
 export const RESYNC_MIN_GAP_MS = 1500
 export const RECONNECT_RESYNC_DELAY_MS = 400
 export const CONFETTI_PIECES = 70
+
 export { MS_PER_SECOND } from '@doodle/shared'
+
 export const RECONNECT = { delayMs: 250, maxDelayMs: 2500, randomization: 0.3 } as const
 export const STROKE_REPLAY = { maxIdleMs: 700, minStrokeMs: 220, maxStrokeMs: 2600, tailMs: 600 } as const

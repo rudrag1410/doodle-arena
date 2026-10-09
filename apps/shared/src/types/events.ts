@@ -3,6 +3,7 @@ import type { CanvasFull, CanvasOps, CanvasOpsBroadcast, ShapeRecord } from './c
 import type { ChatMessage } from './chat'
 import type { ReplayTurn } from './replay'
 import type { RoomSettings, RoomView } from './room'
+
 export type JoinResult =
   | {
       ok: true
@@ -15,11 +16,13 @@ export type JoinResult =
       code: JoinErrorCode
       message: string
     }
+
 export interface CreateRoomPayload {
   name: string
   avatar: number
   settings?: Partial<RoomSettings>
 }
+
 export interface JoinRoomPayload {
   roomId: string
   name: string
@@ -27,6 +30,7 @@ export interface JoinRoomPayload {
   playerId?: string
   token?: string
 }
+
 export interface ClientToServerEvents {
   [ClientEvent.RoomCreate]: (p: CreateRoomPayload, ack: (r: JoinResult) => void) => void
   [ClientEvent.RoomJoin]: (p: JoinRoomPayload, ack: (r: JoinResult) => void) => void
@@ -40,14 +44,17 @@ export interface ClientToServerEvents {
   [ClientEvent.Chat]: (text: string) => void
   [ClientEvent.TimeSync]: (ack: (serverNow: number) => void) => void
 }
+
 export interface CanvasRejectPayload {
   reason: CanvasRejectReason
   message: string
 }
+
 export interface ToastPayload {
   kind: ToastKind
   text: string
 }
+
 export interface ServerToClientEvents {
   [ServerEvent.State]: (v: RoomView) => void
   [ServerEvent.Chat]: (m: ChatMessage) => void

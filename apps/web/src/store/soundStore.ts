@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
-import { StorageKey } from '../constants/storage'
+
+import { StorageKey } from '@/constants/storage'
 
 interface SoundState {
   muted: boolean

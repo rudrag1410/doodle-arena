@@ -1,9 +1,11 @@
 import type { PackId } from '@doodle/shared'
+
 const w = (s: string) =>
   s
     .split(',')
     .map((x) => x.trim())
     .filter(Boolean)
+
 export const WORDS: Record<PackId, string[]> = {
   classic: w(
     'apple, bridge, candle, castle, clock, cloud, crown, diamond, dragon, drum, feather, flag, ghost, guitar, hammer, igloo, island, key, ladder, lighthouse, magnet, mountain, mushroom, necklace, ocean, parachute, pyramid, rainbow, robot, rocket, scissors, snowman, spider web, sunglasses, telescope, tornado, treasure map, umbrella, volcano, windmill, wizard, zombie, balloon, bicycle, bandage, campfire, chimney, compass, fountain, hourglass, jellyfish, lantern, mermaid, ninja, pirate ship, skateboard, submarine, tent, unicorn, vampire, waterfall, anchor, boomerang, cactus, dinosaur, fireworks, hot air balloon, kite, mailbox, pencil, scarecrow, trampoline, trophy',
