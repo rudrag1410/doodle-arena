@@ -19,7 +19,7 @@ Requires **Node 20+** and **pnpm** (`corepack enable` gives you one).
 pnpm install && pnpm start
 ```
 
-Open **http://localhost:3001**, click *Create a room*, copy the invite link, open it in another browser (or a few tabs — identity is per tab) and play.
+Open **http://localhost:8080**, click *Create a room*, copy the invite link, open it in another browser (or a few tabs — identity is per tab) and play.
 
 That single command builds the web app and serves it **and** the game server from one port.
 
@@ -28,14 +28,18 @@ That single command builds the web app and serves it **and** the game server fro
 
 | Command | What it does |
 |---|---|
-| `pnpm dev` | Vite dev server on :5173 (HMR) + server on :3001 with auto-restart. Use this while hacking. |
+| `pnpm dev` | Vite dev server on :3000 (HMR) + server on :8080 with auto-restart. Use this while hacking. |
+| `pnpm lint` / `pnpm lint:fix` | ESLint (typescript-eslint, react-hooks) with Prettier-compatible rules. |
+| `pnpm format` / `pnpm format:check` | Write / verify Prettier formatting. |
+| `pnpm check` | Format check + lint + typecheck + unit tests. |
+| `docker compose up --build` | Run the whole app in a container on http://localhost:8080 (rooms persist in a volume). |
 | `pnpm test` | Unit tests: game rules, scoring, secrecy, reconnect grace, canvas validation, restart recovery (31 tests) |
 | `pnpm e2e` | Boots a real server and plays a full game with headless bots, including cheating attempts (17 checks) |
 | `pnpm demo-bots ROOMCODE 3` | Drops 3 bots into a room that really draw (streamed strokes) and guess — handy for demos |
 | `pnpm loadtest -- --rooms 300 --procs 8 --spawn` | Capacity test (see [docs/NOTES.md](docs/NOTES.md#4-capacity--how-many-rooms-per-instance)) |
 | `pnpm typecheck` | `tsc` across all packages |
 
-Environment (all optional): `PORT` (3001), `MAX_ROOMS`, `GRACE_MS`, `DATA_FILE` (room snapshot path, empty to disable), `VITE_TLDRAW_LICENSE_KEY`.
+Environment (all optional): `PORT` (8080), `MAX_ROOMS`, `GRACE_MS`, `DATA_FILE` (room snapshot path, empty to disable), `VITE_TLDRAW_LICENSE_KEY`.
 
 </details>
 

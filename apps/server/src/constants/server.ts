@@ -1,4 +1,4 @@
-export const DEFAULT_PORT = 3001
+export const DEFAULT_PORT = 8080
 export const PATHS = { webDist: ['..', 'web', 'dist'], dataDir: 'data', snapshotFile: 'rooms.json' } as const
 export enum ProcessSignal {
   Interrupt = 'SIGINT',

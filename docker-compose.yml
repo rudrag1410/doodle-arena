@@ -5,7 +5,7 @@ services:
       args:
         VITE_TLDRAW_LICENSE_KEY: ${VITE_TLDRAW_LICENSE_KEY:-}
     ports:
-      - '${PORT:-3001}:3001'
+      - '${PORT:-8080}:8080'
     environment:
       TRUST_PROXY: ${TRUST_PROXY:-}
     volumes:

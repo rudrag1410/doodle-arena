@@ -6,5 +6,5 @@ export const LOG_MESSAGES = {
   persistFailed: '[registry] could not persist rooms',
   restoreFailed: '[registry] could not restore rooms',
   handlerError: '[socket] handler error',
-  noBuild: 'Doodle Arena server is running. Build the web app (pnpm build) or use the Vite dev server on :5173.',
+  noBuild: 'Doodle Arena server is running. Build the web app (pnpm build) or use the Vite dev server on :3000.',
 } as const

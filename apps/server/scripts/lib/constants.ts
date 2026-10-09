@@ -1,5 +1,5 @@
 import { EnvVar } from '../../src/config/envVars'
-export const DEFAULT_SERVER_URL = 'http://localhost:3001'
+export const DEFAULT_SERVER_URL = 'http://localhost:8080'
 export const BOT_AVATAR = 1
 export const BOT_STROKE_DEFAULT_POINTS = 8
 export const PATH_FIRST_POINT_BYTES = 12

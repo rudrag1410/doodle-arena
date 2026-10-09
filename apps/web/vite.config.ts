@@ -1,11 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-const server = process.env.VITE_SERVER_URL ?? 'http://localhost:3001'
+const server = process.env.VITE_SERVER_URL ?? 'http://localhost:8080'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    port: 5173,
+    port: 3000,
     proxy: {
       '/socket.io': { target: server, ws: true, changeOrigin: true },
       '/api': { target: server, changeOrigin: true },
