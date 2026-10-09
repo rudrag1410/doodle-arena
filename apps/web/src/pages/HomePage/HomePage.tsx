@@ -98,7 +98,7 @@ export const HomePage = () => {
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: ENTRY_DELAY_S, ...SPRING.gentle }}
-        className="card relative z-10 w-full max-w-md shrink-0 p-4 short:p-3 sm:p-6"
+        className="card relative z-10 w-full max-w-md min-w-0 p-4 short:p-3 short:landscape:max-w-[min(26rem,52vw)] sm:p-6"
       >
         <label className="label" htmlFor="name">
           {COPY.common.nameLabel}

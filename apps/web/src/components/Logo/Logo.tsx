@@ -3,7 +3,10 @@ import clsx from 'clsx'
 import { COPY } from '@/constants/copy'
 import { THEME } from '@/constants/theme'
 
-const SIZES = { md: { icon: 'size-9', text: 'text-2xl' }, lg: { icon: 'size-10 sm:size-16', text: 'text-3xl sm:text-6xl' } } as const
+const SIZES = {
+  md: { icon: 'size-9', text: 'text-2xl' },
+  lg: { icon: 'size-10 sm:size-16 short:sm:size-9', text: 'text-3xl sm:text-6xl short:sm:text-3xl' },
+} as const
 
 export const Logo = ({ size = 'md' }: { size?: keyof typeof SIZES }) => {
   const { icon, text } = SIZES[size]
