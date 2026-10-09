@@ -22,10 +22,10 @@ import { createRateLimiter, type IpGate } from '../security/rateLimit'
 import { clientIp } from './clientIp'
 import { createRoomSchema, joinRoomSchema } from './schemas'
 
-export type GameSocket = Socket<ClientToServerEvents, ServerToClientEvents>
-export type GameServer = Server<ClientToServerEvents, ServerToClientEvents>
+type GameSocket = Socket<ClientToServerEvents, ServerToClientEvents>
+type GameServer = Server<ClientToServerEvents, ServerToClientEvents>
 
-export interface SocketDeps {
+interface SocketDeps {
   registry: Registry
   stats: StatsCollector
   ipGate: IpGate

@@ -53,12 +53,12 @@ export const LobbyPage = ({ view }: { view: RoomView }) => {
                   disabled={!canStart}
                   onClick={() => socket.emit(ClientEvent.GameStart)}
                 >
-                  <Play size={22} fill="currentColor" /> {COPY.lobby.start}
+                  <Play size="1.375rem" fill="currentColor" /> {COPY.lobby.start}
                 </button>
                 {!canStart && <p className="mt-1 text-center text-xs font-bold text-ink-soft sm:text-sm">{COPY.lobby.needMore}</p>}
               </>
             ) : (
-              <div className="rounded-2xl border-[2.5px] border-dashed border-ink/40 p-3 text-center font-display text-base font-semibold sm:text-lg">
+              <div className="rounded-2xl border-(length:--border-width) border-dashed border-ink/40 p-3 text-center font-display text-base font-semibold sm:text-lg">
                 {COPY.lobby.waitingPrefix} <b>{hostName}</b> {COPY.lobby.waitingSuffix}
               </div>
             )}

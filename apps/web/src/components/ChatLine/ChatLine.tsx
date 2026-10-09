@@ -9,7 +9,7 @@ export const ChatLine = ({ m, mine }: { m: ChatMessage; mine: boolean }) => {
     case ChatKind.Correct:
       return (
         <p className="flex items-center gap-1.5 rounded-lg bg-mint/25 px-2 py-1 font-extrabold text-[#0b7d67]">
-          <Sparkles size={16} /> {m.text}
+          <Sparkles size="1rem" /> {m.text}
         </p>
       )
     case ChatKind.Close:
@@ -17,7 +17,7 @@ export const ChatLine = ({ m, mine }: { m: ChatMessage; mine: boolean }) => {
     case ChatKind.Secret:
       return (
         <p className="rounded-lg bg-grape/10 px-2 py-1 text-grape">
-          <Lock size={13} className="mr-1 inline -translate-y-px" />
+          <Lock size="0.8125rem" className="mr-1 inline -translate-y-px" />
           <b>{m.name}</b>: <span className="font-semibold">{m.text}</span>
         </p>
       )

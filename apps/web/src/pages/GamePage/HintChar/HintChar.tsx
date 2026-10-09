@@ -3,7 +3,7 @@ import { HINTS } from '@doodle/shared'
 
 import { isWordChar } from '@/utils'
 
-export const BOX = 'h-7 w-5 sm:h-10 sm:w-7'
+const BOX = 'h-7 w-5 sm:h-10 sm:w-7'
 
 export const HintChar = ({ ch }: { ch: string }) => {
   if (ch === HINTS.separatorChar) return <span className="w-3 sm:w-5" />

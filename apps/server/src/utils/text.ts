@@ -9,7 +9,7 @@ const WHITESPACE_RUN = /\s+/g
 const fold = (s: string) => deburr(s).toLowerCase()
 export const normalize = (s: string): string => fold(s).replace(NON_ALNUM, '')
 export const tokenize = (s: string): string[] => words(fold(s), WORD_TOKEN)
-export const isLetter = (ch: string) => LETTER.test(ch)
+const isLetter = (ch: string) => LETTER.test(ch)
 
 export const maskWord = (word: string, revealed: ReadonlySet<number>): string =>
   [...word].map((ch, i) => (!isLetter(ch) || revealed.has(i) ? ch : HINTS.maskChar)).join('')

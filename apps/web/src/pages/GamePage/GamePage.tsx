@@ -67,19 +67,19 @@ export const GamePage = ({ view }: { view: RoomView }) => {
           )}
           <SoundToggle />
           <button className="btn btn-sm btn-icon" onClick={leave} aria-label={COPY.common.leaveGame} title={COPY.common.leaveGame}>
-            <LogOut size={18} />
+            <LogOut size="1.125rem" />
           </button>
         </div>
       </header>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-2 landscape:flex-row lg:grid lg:grid-cols-[240px_minmax(0,1fr)_300px] lg:gap-3">
+      <div className="flex min-h-0 flex-1 flex-col gap-2 landscape:flex-row lg:grid lg:grid-cols-[clamp(11rem,17vw,15rem)_minmax(0,1fr)_clamp(13rem,21vw,18.75rem)] lg:gap-3">
         <main className="flex min-w-0 flex-col gap-2 landscape:min-h-0 landscape:flex-1 lg:order-2 lg:min-h-0 lg:gap-3">
           <div className="card shrink-0 px-3 py-1.5 short:py-0.5">
             <WordBar view={view} />
           </div>
           {view.notice && (
             <div className="card flex shrink-0 items-center gap-2 bg-sunny px-3 py-1.5 text-sm font-extrabold">
-              <AlertTriangle size={18} className="shrink-0" /> {view.notice}
+              <AlertTriangle size="1.125rem" className="shrink-0" /> {view.notice}
             </div>
           )}
           <BoardFrame className="max-lg:portrait:aspect-[4/3] max-lg:portrait:w-full landscape:min-h-0 landscape:flex-1 lg:min-h-0 lg:flex-1">

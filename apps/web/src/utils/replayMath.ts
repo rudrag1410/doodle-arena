@@ -1,10 +1,10 @@
-import { ceil, clamp, max, sumBy } from 'lodash-es'
+import { ceil, clamp, sumBy } from 'lodash-es'
 import { b64Vecs } from 'tldraw'
 import { ShapeKind, type ReplayEvent, type SegmentType, type ShapeRecord } from '@doodle/shared'
 
 import { STROKE_REPLAY } from '@/constants/timing'
 
-export interface TimelineEvent {
+interface TimelineEvent {
   ct: number
   cd: number
   puts: ShapeRecord[]
@@ -49,7 +49,7 @@ export function buildTimeline(events: ReplayEvent[]): {
   return { timeline, total: cursor + tailMs }
 }
 
-export function partialStroke(rec: ShapeRecord, frac: number): ShapeRecord {
+function partialStroke(rec: ShapeRecord, frac: number): ShapeRecord {
   const props = rec.props as {
     segments: Segment[]
   }
@@ -57,13 +57,13 @@ export function partialStroke(rec: ShapeRecord, frac: number): ShapeRecord {
   const decoded = props.segments.map((s) => b64Vecs.decodePoints(s.path, s.dim))
   const total = sumBy(decoded, 'length')
   const MIN_POINTS = 2
-  let keep = max([MIN_POINTS, ceil(total * frac)])!
+  let keep = Math.max(MIN_POINTS, ceil(total * frac))
   const segments: Segment[] = []
 
   props.segments.forEach((seg, i) => {
     if (keep <= 0) return
 
-    const pts = decoded[i].slice(0, keep)
+    const pts = decoded[i]?.slice(0, keep) ?? []
 
     keep -= pts.length
 

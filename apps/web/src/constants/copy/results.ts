@@ -1,0 +1,26 @@
+export const RESULTS_COPY = {
+  end: {
+    winner: (name: string) => `${name} wins!`,
+    tie: 'It’s a tie!',
+    summary: (rounds: number, players: number) => `${rounds} round${rounds > 1 ? 's' : ''} · ${players} players`,
+    finalScores: 'Final scores',
+    playAgain: 'Play again',
+    waitingHost: 'Waiting for the host to start a new game…',
+    replayTitle: 'Replay the masterpieces',
+    replayLead: 'Every drawing, stroke by stroke. Pick a turn and press play.',
+    loadingReplay: 'Loading replays…',
+  },
+  replay: {
+    none: 'Nobody drew anything this game — no replays to show.',
+    turns: 'Turns',
+    drew: (name: string, word: string) => `${name} drew “${word}”`,
+    turnMeta: (name: string, round: number) => `${name} · round ${round}`,
+    play: 'Play',
+    pause: 'Pause',
+    restart: 'Restart',
+    position: 'Replay position',
+    speed: 'Speed',
+    speedLabel: (s: number) => `${s}×`,
+    savePng: 'PNG',
+  },
+} as const

@@ -17,8 +17,6 @@ export const createRateLimiter = () => {
   return { allow: (name: RateName) => buckets[name].tryRemoveTokens(1) }
 }
 
-export type RateLimiter = ReturnType<typeof createRateLimiter>
-
 export const createIpGate = (enabled: boolean, maxTracked: number) => {
   const buckets = new LRUCache<string, TokenBucket>({ max: maxTracked })
 

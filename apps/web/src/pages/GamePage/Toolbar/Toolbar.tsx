@@ -55,7 +55,7 @@ export const Toolbar = ({ tool, setTool, color, setColor, size, setSize, onUndo,
             aria-label={text}
             title={text}
           >
-            <Icon size={18} />
+            <Icon size="1.125rem" />
           </button>
         )
       })}
@@ -75,7 +75,7 @@ export const Toolbar = ({ tool, setTool, color, setColor, size, setSize, onUndo,
           title={colourName(id)}
           onClick={() => setColor(id)}
           className={clsx(
-            'aspect-square w-full rounded-full border-2 border-ink transition hover:-translate-y-0.5 sm:size-7 sm:border-[2.5px]',
+            'aspect-square w-full rounded-full border-2 border-ink transition hover:-translate-y-0.5 sm:size-7 sm:border-(length:--border-width)',
             color === id && 'scale-110 ring-[3px] ring-sky ring-offset-1',
           )}
           style={{ background: hex }}
@@ -93,7 +93,7 @@ export const Toolbar = ({ tool, setTool, color, setColor, size, setSize, onUndo,
           title={COPY.toolbar.brushNames[id]}
           onClick={() => setSize(id)}
           className={clsx(
-            'grid size-9 place-items-center rounded-xl border-[2.5px] border-ink transition max-sm:size-7',
+            'grid size-9 place-items-center rounded-xl border-(length:--border-width) border-ink transition max-sm:size-7',
             size === id ? 'bg-sunny shadow-pop-sm' : 'bg-white hover:-translate-y-0.5',
           )}
         >
@@ -104,10 +104,10 @@ export const Toolbar = ({ tool, setTool, color, setColor, size, setSize, onUndo,
 
     <div className="ml-auto flex gap-1">
       <button className={ICON_BTN} onClick={onUndo} aria-label={COPY.toolbar.undo} title={COPY.toolbar.undo}>
-        <Undo2 size={18} />
+        <Undo2 size="1.125rem" />
       </button>
       <button className={ICON_BTN} onClick={onClear} aria-label={COPY.toolbar.clear} title={COPY.toolbar.clear}>
-        <Trash2 size={18} />
+        <Trash2 size="1.125rem" />
       </button>
     </div>
   </div>

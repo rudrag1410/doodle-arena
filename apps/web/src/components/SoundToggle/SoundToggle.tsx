@@ -10,7 +10,7 @@ export const SoundToggle = () => {
 
   return (
     <button className="btn btn-sm btn-icon" onClick={toggle} aria-label={label} aria-pressed={muted} title={label}>
-      {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+      {muted ? <VolumeX size="1.125rem" /> : <Volume2 size="1.125rem" />}
     </button>
   )
 }

@@ -12,13 +12,13 @@ const CIRCLE_STEPS = 48
 const LINE_STEPS = 14
 const POLY_EDGE_STEPS = 10
 
-export const circle = (cx: number, cy: number, r: number, n = CIRCLE_STEPS): Pt[] =>
+const circle = (cx: number, cy: number, r: number, n = CIRCLE_STEPS): Pt[] =>
   Array.from({ length: n + 1 }, (_, i) => [cx + r * Math.cos((i / n) * Math.PI * 2), cy + r * Math.sin((i / n) * Math.PI * 2)])
 
-export const line = (a: Pt, b: Pt, n = LINE_STEPS): Pt[] =>
+const line = (a: Pt, b: Pt, n = LINE_STEPS): Pt[] =>
   Array.from({ length: n + 1 }, (_, i) => [a[0] + ((b[0] - a[0]) * i) / n, a[1] + ((b[1] - a[1]) * i) / n])
 
-export const poly = (...pts: Pt[]): Pt[] => pts.slice(1).flatMap((_, i) => line(pts[i], pts[i + 1], POLY_EDGE_STEPS))
+const poly = (...pts: Pt[]): Pt[] => pts.slice(1).flatMap((_, i) => line(pts[i], pts[i + 1], POLY_EDGE_STEPS))
 const { Black, Red, Orange, LightBlue, Yellow } = PaletteColor
 const { Medium, Large, ExtraLarge } = BrushSize
 const SUN_RAYS = 10

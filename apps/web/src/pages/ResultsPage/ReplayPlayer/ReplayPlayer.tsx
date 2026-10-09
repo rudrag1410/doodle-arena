@@ -19,7 +19,7 @@ export const ReplayPlayer = ({ turns }: { turns: ReplayTurn[] }) => {
   const { editor, onMount, t, total, playing, speed, setSpeed, restart, togglePlay, scrub } = useReplayPlayer(turn)
 
   const savePng = async () => {
-    if (!editor) return
+    if (!editor || !turn) return
 
     const ids = [...editor.getCurrentPageShapeIds()] as TLShapeId[]
     const res = await editor.toImage(ids, { format: 'png', background: true, ...REPLAY_EXPORT }).catch(() => null)
@@ -34,7 +34,7 @@ export const ReplayPlayer = ({ turns }: { turns: ReplayTurn[] }) => {
     setTimeout(() => URL.revokeObjectURL(a.href), REPLAY_URL_REVOKE_MS)
   }
 
-  if (!turns.length) return <p className="card p-6 text-center font-semibold text-ink-soft">{COPY.replay.none}</p>
+  if (!turn) return <p className="card p-6 text-center font-semibold text-ink-soft">{COPY.replay.none}</p>
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-2">
@@ -70,10 +70,10 @@ export const ReplayPlayer = ({ turns }: { turns: ReplayTurn[] }) => {
 
       <div className="card flex shrink-0 flex-wrap items-center gap-2 p-2 sm:gap-3 sm:p-3">
         <button className="btn btn-icon btn-sunny" onClick={togglePlay} aria-label={playing ? COPY.replay.pause : COPY.replay.play}>
-          {playing ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
+          {playing ? <Pause size="1.25rem" fill="currentColor" /> : <Play size="1.25rem" fill="currentColor" />}
         </button>
         <button className="btn btn-icon" onClick={restart} aria-label={COPY.replay.restart}>
-          <RotateCcw size={20} />
+          <RotateCcw size="1.25rem" />
         </button>
         <input
           type="range"
@@ -99,7 +99,7 @@ export const ReplayPlayer = ({ turns }: { turns: ReplayTurn[] }) => {
           ))}
         </div>
         <button className="btn btn-sm" onClick={savePng}>
-          <Download size={16} /> {COPY.replay.savePng}
+          <Download size="1rem" /> {COPY.replay.savePng}
         </button>
       </div>
     </div>

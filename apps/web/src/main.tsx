@@ -9,7 +9,11 @@ import { queryClient } from '@/services/api'
 
 const ROOT_ID = 'root'
 
-createRoot(document.getElementById(ROOT_ID)!).render(
+const rootElement = document.getElementById(ROOT_ID)
+
+if (!rootElement) throw new Error(`#${ROOT_ID} element is missing from index.html`)
+
+createRoot(rootElement).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <App />

@@ -63,7 +63,7 @@ const shapeSchema = z
 const idSchema = z.string().regex(SHAPE_ID_PATTERN)
 export const isShapeId = (id: unknown): id is string => idSchema.safeParse(id).success
 
-export type Checked =
+type Checked =
   | {
       ok: true
       bytes: number
@@ -80,11 +80,11 @@ export const checkShape = (rec: unknown): Checked => {
   const parsed = shapeSchema.safeParse(rec)
 
   if (!parsed.success) {
-    const [issue] = parsed.error.issues
+    const issue = parsed.error.issues[0]
 
-    return issue.code === 'too_big' && issue.path.includes('path')
-      ? tooLarge()
-      : { ok: false, reason: CanvasRejectReason.Invalid, message: `${issue.path.join('.')}: ${issue.message}` }
+    if (issue?.code === 'too_big' && issue.path.includes('path')) return tooLarge()
+
+    return { ok: false, reason: CanvasRejectReason.Invalid, message: issue ? `${issue.path.join('.')}: ${issue.message}` : parsed.error.message }
   }
 
   const bytes = JSON.stringify(rec).length

@@ -65,7 +65,11 @@ export const HomePage = () => {
         </p>
         <div className="mt-8 hidden w-full max-w-md gap-3 lg:grid">
           {COPY.home.steps.map((step, i) => {
-            const { icon: Icon, color } = STEP_ICONS[i]
+            const stepIcon = STEP_ICONS[i]
+
+            if (!stepIcon) return null
+
+            const { icon: Icon, color } = stepIcon
 
             return (
               <motion.div
@@ -75,8 +79,8 @@ export const HomePage = () => {
                 transition={{ delay: STEP_BASE_DELAY_S + i * STAGGER_MS }}
                 className="card flex items-start gap-3 p-3"
               >
-                <span className={clsx('grid size-10 shrink-0 place-items-center rounded-xl border-[2.5px] border-ink', color)}>
-                  <Icon size={20} />
+                <span className={clsx('grid size-10 shrink-0 place-items-center rounded-xl border-(length:--border-width) border-ink', color)}>
+                  <Icon size="1.25rem" />
                 </span>
                 <div>
                   <h3 className="text-lg leading-tight font-semibold">{step.title}</h3>
@@ -87,7 +91,7 @@ export const HomePage = () => {
           })}
         </div>
         <p className="mt-4 hidden items-center gap-2 text-sm font-bold text-ink-soft sm:flex">
-          <Users size={16} /> {COPY.home.audience}
+          <Users size="1rem" /> {COPY.home.audience}
         </p>
       </motion.div>
       <motion.div
@@ -114,7 +118,7 @@ export const HomePage = () => {
         <div className="label mt-3 mb-1.5 short:mt-1.5 short:mb-1 sm:mt-4">{COPY.common.buddyLabel}</div>
         <AvatarPicker value={profile.avatar} onChange={(avatar) => setProfile({ ...profile, avatar })} />
         <button className="btn btn-primary mt-4 w-full py-3 text-lg short:mt-2 short:py-2 sm:py-4 sm:text-xl" onClick={onCreate} disabled={busy}>
-          {create.isPending ? <Loader2 className="animate-spin" /> : <Plus size={22} strokeWidth={3} />} {COPY.home.create}
+          {create.isPending ? <Loader2 className="animate-spin" /> : <Plus size="1.375rem" strokeWidth={3} />} {COPY.home.create}
         </button>
         <div className="my-3 flex items-center short:my-1.5 gap-3 text-sm font-extrabold text-ink-soft">
           <span className="h-0.5 flex-1 rounded bg-line" /> {COPY.home.orJoin} <span className="h-0.5 flex-1 rounded bg-line" />

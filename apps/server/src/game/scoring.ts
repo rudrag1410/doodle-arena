@@ -1,7 +1,7 @@
-import { clamp, max, round } from 'lodash-es'
+import { clamp, round } from 'lodash-es'
 import { SCORING } from '@doodle/shared'
 
-export interface GuessScoreInput {
+interface GuessScoreInput {
   timeLeftMs: number
   totalMs: number
   earlierGuessers: number
@@ -9,7 +9,7 @@ export interface GuessScoreInput {
 
 export function guessPoints({ timeLeftMs, totalMs, earlierGuessers }: GuessScoreInput): number {
   const fraction = totalMs > 0 ? clamp(timeLeftMs / totalMs, 0, 1) : 0
-  const early = max([0, SCORING.earlyBonusMax - SCORING.earlyBonusStep * earlierGuessers])!
+  const early = Math.max(0, SCORING.earlyBonusMax - SCORING.earlyBonusStep * earlierGuessers)
 
   return SCORING.basePoints + round(SCORING.timeBonusMax * fraction) + early
 }

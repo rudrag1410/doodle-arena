@@ -10,7 +10,7 @@ export const RoomSummary = ({ info }: { info: RoomInfo }) => {
 
   return (
     <div className="mt-1 inline-flex items-center gap-1.5 text-sm font-bold text-ink-soft">
-      <Users size={15} /> {COPY.gate.inRoom(info.players)}
+      <Users size="0.9375rem" /> {COPY.gate.inRoom(info.players)}
       {info.host && COPY.gate.hostedBy(info.host)}
       {inProgress && COPY.gate.inProgress}
     </div>

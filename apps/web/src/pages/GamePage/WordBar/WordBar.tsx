@@ -15,7 +15,7 @@ export const WordBar = ({ view }: { view: RoomView }) => {
         <div className="flex flex-wrap items-center justify-center gap-x-3">
           <span className="label">{isDrawer ? COPY.game.drawThis : COPY.game.theWord}</span>
           <span className="font-display text-2xl font-bold tracking-wide sm:text-4xl">{toUpper(view.word)}</span>
-          {!isDrawer && guessed && <Check size={26} strokeWidth={4} className="text-mint" />}
+          {!isDrawer && guessed && <Check size="1.625rem" strokeWidth={4} className="text-mint" />}
         </div>
       )
     }

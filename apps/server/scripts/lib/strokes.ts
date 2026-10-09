@@ -1,7 +1,7 @@
 import { BrushSize, DashStyle, FillStyle, PAGE_ID, PaletteColor, RecordTypeName, SegmentType, ShapeKind, type ShapeRecord } from '@doodle/shared'
 import { BOT_STROKE_DEFAULT_POINTS, PATH_FILL_BYTE, PATH_FIRST_POINT_BYTES, PATH_POINT_BYTES, STROKE_ID_PREFIX } from './constants'
 
-export interface StrokeStyle {
+interface StrokeStyle {
   color?: PaletteColor
   size?: BrushSize
   fill?: FillStyle

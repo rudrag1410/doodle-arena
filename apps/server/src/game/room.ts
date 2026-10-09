@@ -1,4 +1,4 @@
-import { random, round, sample } from 'lodash-es'
+import { random, sample } from 'lodash-es'
 import {
   AVATARS,
   CanvasRejectReason,
@@ -6,7 +6,6 @@ import {
   DEFAULT_PLAYER_NAME,
   JoinErrorCode,
   LIMITS,
-  MS_PER_SECOND,
   MIN_PLAYERS_IN_GAME,
   MIN_PLAYERS_TO_START,
   Phase,
@@ -15,7 +14,6 @@ import {
   clampInt,
   type CanvasOps,
   type ChatMessage,
-  type PublicPlayer,
   type RankingEntry,
   type ReplayTurn,
   type RoomSettings,
@@ -25,25 +23,25 @@ import {
 } from '@doodle/shared'
 import { CanvasStore } from '../canvas/canvasStore'
 import { env } from '../config/env'
-import { CHAT_MESSAGES, ERROR_MESSAGES, KICK_REASONS, NOTICE_MESSAGES } from '../constants/messages'
+import { CHAT_MESSAGES, ERROR_MESSAGES, KICK_REASONS } from '../constants/messages'
 import { newPlayerId, newToken } from '../utils/id'
-import { cleanChat, cleanName, maskWord, normalize, revealableIndexes } from '../utils/text'
-import { containsAnswer, isClose } from './guess'
+import { cleanChat, cleanName, normalize, revealableIndexes } from '../utils/text'
 import { hintSchedule } from './hints'
 import { drawerBonus, guessPoints } from './scoring'
 import { sanitizeSettings } from './settings'
 import type { Conn, Player, RoomHooks, RoomOptions, RoomSnapshot } from './types'
 import { buildRanking, buildReplayTurn, uniqueName } from './roomHelpers'
 import { pickChoices } from './wordPool'
+import { buildRoomView, type ViewSource } from './roomView'
+import { routeChat } from './chatRoute'
+import { TurnTimers } from './turnTimers'
 
-export const DEFAULT_OPTIONS: Omit<RoomOptions, keyof RoomHooks> = {
+const DEFAULT_OPTIONS: Omit<RoomOptions, keyof RoomHooks> = {
   chooseMs: env.chooseMs,
   turnEndMs: env.turnEndMs,
   graceMs: env.graceMs,
   now: Date.now,
 }
-
-type Timer = ReturnType<typeof setTimeout>
 
 type CanvasResult =
   | {
@@ -54,15 +52,6 @@ type CanvasResult =
       reason: CanvasRejectReason
       message: string
     }
-
-const toPublicPlayer = (p: Player): PublicPlayer => ({
-  id: p.id,
-  name: p.name,
-  avatar: p.avatar,
-  score: p.score,
-  connected: !!p.conn,
-  guessed: p.guessed,
-})
 
 export class Room {
   readonly id: string
@@ -87,8 +76,7 @@ export class Room {
   private ranking: RankingEntry[] | null = null
   private phaseEndsAt: number | null = null
   private phaseDurationMs: number | null = null
-  private phaseTimer: Timer | null = null
-  private hintTimers: Timer[] = []
+  private readonly timers = new TurnTimers()
   private msgSeq = 0
   private destroyed = false
 
@@ -190,6 +178,8 @@ export class Room {
 
   private promoteHost() {
     const next = this.connectedPlayers[0] ?? [...this.players.values()][0]
+
+    if (!next) return
 
     this.hostId = next.id
     this.systemChat(CHAT_MESSAGES.newHost(next.name))
@@ -313,6 +303,8 @@ export class Room {
 
     const drawer = candidates[0]
 
+    if (!drawer) return this.abortToLobby()
+
     this.drawn.add(drawer.id)
     this.drawerId = drawer.id
     this.drawerInfo = { name: drawer.name, avatar: drawer.avatar }
@@ -321,11 +313,13 @@ export class Room {
     this.revealed.clear()
     this.deltas.clear()
     this.players.forEach((p) => (p.guessed = false))
-    this.choices = pickChoices(this.settings, this.used)
+    const choices = pickChoices(this.settings, this.used)
+
+    this.choices = choices
     this.resetCanvas()
     this.phase = Phase.Choosing
     this.setPhaseClock(this.opts.chooseMs)
-    this.phaseTimer = setTimeout(() => this.pickWord(drawer.id, random(this.choices!.length - 1)), this.opts.chooseMs)
+    this.timers.schedulePhase(() => this.pickWord(drawer.id, random(choices.length - 1)), this.opts.chooseMs)
     this.systemChat(CHAT_MESSAGES.choosing(drawer.name))
     this.commit()
   }
@@ -334,9 +328,13 @@ export class Room {
     if (this.phase !== Phase.Choosing || by !== this.drawerId || !this.choices) return ERROR_MESSAGES.notChoosing
     if (!Number.isInteger(index) || index < 0 || index >= this.choices.length) return ERROR_MESSAGES.invalidChoice
 
+    const word = this.choices[index]
+
+    if (!word) return ERROR_MESSAGES.invalidChoice
+
     this.clearTimers()
-    this.word = this.choices[index]
-    this.used.add(normalize(this.word))
+    this.word = word
+    this.used.add(normalize(word))
     this.choices = null
     this.startDrawing()
 
@@ -344,14 +342,18 @@ export class Room {
   }
 
   private startDrawing() {
+    const word = this.word
+
+    if (!word) return
+
     this.phase = Phase.Drawing
     this.canvas.reset()
 
     const total = this.settings.drawTime * 1000
 
     this.setPhaseClock(total)
-    this.phaseTimer = setTimeout(() => this.endTurn(TurnEndReason.Time), total)
-    this.hintTimers = hintSchedule(this.word!).map((fraction) => setTimeout(() => this.revealLetter(), total * fraction))
+    this.timers.schedulePhase(() => this.endTurn(TurnEndReason.Time), total)
+    hintSchedule(word).forEach((fraction) => this.timers.scheduleHint(() => this.revealLetter(), total * fraction))
     this.commit()
   }
 
@@ -360,9 +362,11 @@ export class Room {
 
     const options = revealableIndexes(this.word, this.revealed)
 
-    if (options.length <= 1) return
+    const pick = sample(options)
 
-    this.revealed.add(sample(options)!)
+    if (options.length <= 1 || pick === undefined) return
+
+    this.revealed.add(pick)
     this.emitState()
   }
 
@@ -379,15 +383,17 @@ export class Room {
 
     const drawer = this.drawer
 
-    if (!this.word) {
+    const { word, drawerId } = this
+
+    if (!word || !drawerId) {
       this.nextTurn()
 
       return
     }
 
     this.turnResult = {
-      word: this.word,
-      drawerId: this.drawerId!,
+      word,
+      drawerId,
       reason,
       deltas: Object.fromEntries(this.deltas),
     }
@@ -396,10 +402,10 @@ export class Room {
       this.replay.push(
         buildReplayTurn({
           round: this.round,
-          drawerId: this.drawerId!,
+          drawerId,
           drawerName: drawer?.name ?? this.drawerInfo.name,
           drawerAvatar: drawer?.avatar ?? this.drawerInfo.avatar,
-          word: this.word,
+          word,
           events: this.canvas.events,
         }),
       )
@@ -409,8 +415,8 @@ export class Room {
 
     this.phase = Phase.TurnEnd
     this.setPhaseClock(this.opts.turnEndMs)
-    this.phaseTimer = setTimeout(() => this.nextTurn(), this.opts.turnEndMs)
-    this.systemChat(CHAT_MESSAGES.wordWas(this.word))
+    this.timers.schedulePhase(() => this.nextTurn(), this.opts.turnEndMs)
+    this.systemChat(CHAT_MESSAGES.wordWas(word))
     this.commit()
   }
 
@@ -435,28 +441,21 @@ export class Room {
 
     if (!text) return
 
-    if (this.phase !== Phase.Drawing || !this.word) {
-      this.deliver({ kind: ChatKind.Chat, playerId: p.id, name: p.name, text }, () => true)
+    const route = routeChat({ phase: this.phase, word: this.word, drawerId: this.drawerId }, p, text)
 
-      return
-    }
+    switch (route.type) {
+      case 'secret':
+        this.deliver({ kind: ChatKind.Secret, playerId: p.id, name: p.name, text }, (q) => q.id === this.drawerId || q.guessed)
 
-    if (p.id === this.drawerId || p.guessed) {
-      this.deliver({ kind: ChatKind.Secret, playerId: p.id, name: p.name, text }, (q) => q.id === this.drawerId || q.guessed)
+        return
+      case 'correct':
+        this.awardGuess(p)
 
-      return
-    }
+        return
+      case 'open':
+        this.deliver({ kind: ChatKind.Chat, playerId: p.id, name: p.name, text }, () => true)
 
-    if (containsAnswer(text, this.word)) {
-      this.awardGuess(p)
-
-      return
-    }
-
-    this.deliver({ kind: ChatKind.Chat, playerId: p.id, name: p.name, text }, () => true)
-
-    if (isClose(text, this.word)) {
-      this.deliver({ kind: ChatKind.Close, text: CHAT_MESSAGES.closeGuess(text) }, (q) => q.id === p.id)
+        if (route.close) this.deliver({ kind: ChatKind.Close, text: CHAT_MESSAGES.closeGuess(text) }, (q) => q.id === p.id)
     }
   }
 
@@ -559,42 +558,35 @@ export class Room {
     return { ok: true }
   }
 
-  private drawerAwayNotice(): string | null {
-    const drawer = this.drawer
-
-    if (!drawer || drawer.conn || !this.inTurn) return null
-
-    return NOTICE_MESSAGES.drawerAway(drawer.name, round(this.opts.graceMs / MS_PER_SECOND))
-  }
-
-  viewFor(p: Player): RoomView {
-    const drawing = this.phase === Phase.Drawing && !!this.word
-    const sees = drawing && (p.id === this.drawerId || p.guessed)
-
+  private viewSource(): ViewSource {
     return {
-      roomId: this.id,
+      id: this.id,
       phase: this.phase,
       settings: this.settings,
       hostId: this.hostId,
-      youId: p.id,
-      players: [...this.players.values()].map(toPublicPlayer),
+      players: this.players,
       round: this.round,
-      totalRounds: this.settings.rounds,
       drawerId: this.drawerId,
       phaseEndsAt: this.phaseEndsAt,
       phaseDurationMs: this.phaseDurationMs,
-      serverNow: this.opts.now(),
-      hint: drawing ? maskWord(this.word!, this.revealed) : null,
-      word: sees ? this.word : null,
-      wordChoices: this.phase === Phase.Choosing && p.id === this.drawerId ? this.choices : null,
-      turnResult: this.phase === Phase.TurnEnd ? this.turnResult : null,
-      ranking: this.phase === Phase.GameEnd ? this.ranking : null,
-      notice: this.drawerAwayNotice(),
+      now: this.opts.now(),
+      word: this.word,
+      revealed: this.revealed,
+      choices: this.choices,
+      turnResult: this.turnResult,
+      ranking: this.ranking,
+      graceMs: this.opts.graceMs,
     }
   }
 
+  viewFor(p: Player): RoomView {
+    return buildRoomView(this.viewSource(), p)
+  }
+
   emitState() {
-    for (const p of this.players.values()) p.conn?.send(ServerEvent.State, this.viewFor(p))
+    const source = this.viewSource()
+
+    for (const p of this.players.values()) p.conn?.send(ServerEvent.State, buildRoomView(source, p))
   }
 
   private broadcast(fn: (c: Conn) => void, exceptPlayerId?: string) {
@@ -607,11 +599,7 @@ export class Room {
   }
 
   private clearTimers() {
-    if (this.phaseTimer) clearTimeout(this.phaseTimer)
-
-    this.phaseTimer = null
-    this.hintTimers.forEach(clearTimeout)
-    this.hintTimers = []
+    this.timers.clear()
   }
 
   destroy() {

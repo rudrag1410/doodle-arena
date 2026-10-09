@@ -3,7 +3,7 @@ import { WORD_CHOICE_COUNT, type RoomSettings } from '@doodle/shared'
 import { WORDS } from '../data/words'
 import { normalize } from '../utils/text'
 
-export const buildPool = (s: RoomSettings): string[] => {
+const buildPool = (s: RoomSettings): string[] => {
   const packWords = s.customOnly ? [] : s.packs.flatMap((p) => WORDS[p])
 
   return uniqBy([...packWords, ...s.customWords].reverse(), normalize).reverse()

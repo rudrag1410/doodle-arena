@@ -3,7 +3,7 @@ import { REPLAY_COALESCE_MS } from '../constants/server'
 import { VALIDATION_MESSAGES } from '../constants/messages'
 import { checkShape, isShapeId } from './shapeValidation'
 
-export type ApplyResult =
+type ApplyResult =
   | {
       ok: true
       seq: number
@@ -118,8 +118,10 @@ export class CanvasStore {
     const t = this.now() - this.startedAt
     const last = this.events[this.events.length - 1]
 
-    if (last && this.continuesStroke(last, puts, removes, t)) {
-      last.puts = [puts[0]]
+    const latest = puts[0]
+
+    if (last && latest && this.continuesStroke(last, puts, removes, t)) {
+      last.puts = [latest]
       last.d = t - last.t
     } else {
       this.events.push({ t, ...(puts.length ? { puts } : {}), ...(removes.length ? { removes } : {}) })
@@ -129,7 +131,7 @@ export class CanvasStore {
   }
 
   private continuesStroke(last: ReplayEvent, puts: ShapeRecord[], removes: string[], t: number): boolean {
-    const sameShape = last.puts?.length === 1 && puts.length === 1 && last.puts[0].id === puts[0].id
+    const sameShape = last.puts?.length === 1 && puts.length === 1 && last.puts[0]?.id === puts[0]?.id
 
     return sameShape && removes.length === 0 && !last.removes?.length && t - this.lastTouched < REPLAY_COALESCE_MS
   }

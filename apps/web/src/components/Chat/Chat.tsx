@@ -27,9 +27,11 @@ export const Chat = ({ view, compact = false }: { view: RoomView; compact?: bool
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border-[2.5px] border-ink bg-white">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border-(length:--border-width) border-ink bg-white">
       {!compact && (
-        <div className="shrink-0 border-b-[2.5px] border-ink bg-sky/30 px-3 py-1.5 font-display text-lg font-semibold">{COPY.chat.title}</div>
+        <div className="shrink-0 border-b-(length:--border-width) border-ink bg-sky/30 px-3 py-1.5 font-display text-lg font-semibold">
+          {COPY.chat.title}
+        </div>
       )}
       <div ref={scrollRef} className="no-scrollbar min-h-0 flex-1 overflow-y-auto" role="log" aria-live="polite">
         <div ref={contentRef} className="space-y-1 px-3 py-2 text-[0.95rem]">
@@ -39,7 +41,7 @@ export const Chat = ({ view, compact = false }: { view: RoomView; compact?: bool
           ))}
         </div>
       </div>
-      <form onSubmit={send} className="flex shrink-0 gap-2 border-t-[2.5px] border-ink bg-cream p-2">
+      <form onSubmit={send} className="flex shrink-0 gap-2 border-t-(length:--border-width) border-ink bg-cream p-2">
         <input
           className="input !rounded-xl !py-1.5 !text-base"
           value={text}
@@ -50,7 +52,7 @@ export const Chat = ({ view, compact = false }: { view: RoomView; compact?: bool
           onChange={(e) => setText(e.target.value)}
         />
         <button className="btn btn-sunny btn-icon" type="submit" aria-label={COPY.chat.send}>
-          <Send size={18} />
+          <Send size="1.125rem" />
         </button>
       </form>
     </div>

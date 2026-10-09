@@ -1,4 +1,3 @@
-import { max } from 'lodash-es'
 import { useState } from 'react'
 import { useInterval } from 'usehooks-ts'
 
@@ -10,5 +9,5 @@ export const useRemaining = (endsAt: number | null): number => {
 
   useInterval(() => setNow(serverNow()), endsAt ? COUNTDOWN_TICK_MS : null)
 
-  return endsAt ? max([0, endsAt - now])! : 0
+  return endsAt ? Math.max(0, endsAt - now) : 0
 }

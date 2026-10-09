@@ -14,7 +14,7 @@ export const RoomHeader = () => {
       <div className="flex items-center gap-2">
         <SoundToggle />
         <button className="btn btn-sm" onClick={leave}>
-          <LogOut size={16} /> {COPY.common.leave}
+          <LogOut size="1rem" /> {COPY.common.leave}
         </button>
       </div>
     </header>

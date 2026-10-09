@@ -21,18 +21,19 @@ export const PlayerRoster = ({ view }: { view: RoomView }) => (
           <motion.li
             key={id}
             layout
+            layoutDependency={view.players.length}
             initial={{ scale: 0.7, opacity: 0 }}
             animate={{ scale: 1, opacity: connected ? 1 : 0.5 }}
             exit={{ scale: 0.7, opacity: 0 }}
-            className="flex min-h-0 items-center gap-2 rounded-2xl border-[2.5px] border-ink bg-white px-2"
+            className="flex min-h-0 items-center gap-2 rounded-2xl border-(length:--border-width) border-ink bg-white px-2"
           >
             <Avatar index={avatar} size={AVATAR_SIZE.roster} />
             <span className="min-w-0 flex-1 truncate text-sm font-extrabold">
               {name}
               {id === view.youId && <span className="ml-1 text-ink-soft">{COPY.common.you}</span>}
             </span>
-            {id === view.hostId && <Crown size={16} fill={THEME.sunny} stroke={THEME.ink} aria-label={COPY.common.host} />}
-            {!connected && <WifiOff size={14} aria-label={COPY.common.reconnecting} />}
+            {id === view.hostId && <Crown size="1rem" fill={THEME.sunny} stroke={THEME.ink} aria-label={COPY.common.host} />}
+            {!connected && <WifiOff size="0.875rem" aria-label={COPY.common.reconnecting} />}
           </motion.li>
         ))}
       </AnimatePresence>

@@ -2,7 +2,7 @@ import { ServerEvent, type CanvasFull, type CanvasOpsBroadcast, type CanvasRejec
 
 import { socket } from './socket'
 
-export interface CanvasListener {
+interface CanvasListener {
   full: (shapes: ShapeRecord[]) => void
   ops: (puts: ShapeRecord[], removes: string[]) => void
   reject: (reason: CanvasRejectReason, message: string) => void

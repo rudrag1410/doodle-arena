@@ -24,7 +24,7 @@ export default tseslint.config(
       'no-return-assign': 'error',
       'no-shadow': 'off',
       '@typescript-eslint/no-shadow': 'error',
-      '@typescript-eslint/no-non-null-assertion': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'error',
       'padding-line-between-statements': [
         'error',
         { blankLine: 'always', prev: 'import', next: '*' },
@@ -55,8 +55,8 @@ export default tseslint.config(
     languageOptions: { globals: globals.node },
   },
   {
-    files: ['apps/server/scripts/**/*.ts', '**/*.test.ts'],
-    rules: { complexity: 'off', 'max-lines': 'off' },
+    files: ['apps/server/scripts/**/*.ts', 'apps/server/src/testing/**/*.ts', '**/*.test.ts'],
+    rules: { complexity: 'off', 'max-lines': 'off', '@typescript-eslint/no-non-null-assertion': 'off' },
   },
   prettier,
 )

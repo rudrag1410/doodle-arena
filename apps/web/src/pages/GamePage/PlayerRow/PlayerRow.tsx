@@ -10,7 +10,7 @@ import { AVATAR_SIZE } from '@/constants/ui'
 import { Avatar } from '@/components'
 import { rowTone, avatarRing } from '@/utils/players'
 
-export interface PlayerRowProps {
+interface PlayerRowProps {
   player: PublicPlayer
   rank: number
   view: RoomView
@@ -22,9 +22,10 @@ export interface PlayerRowProps {
 export const PlayerRow = ({ player: p, rank, view, drawing, delta, roomy }: PlayerRowProps) => (
   <motion.li
     layout
+    layoutDependency={rank}
     transition={SPRING.row}
     className={clsx(
-      'relative flex min-h-0 items-center gap-1.5 rounded-xl border-[2.5px] border-ink px-1.5 lg:gap-2 lg:rounded-2xl lg:px-2.5',
+      'relative flex min-h-0 items-center gap-1.5 rounded-xl border-(length:--border-width) border-ink px-1.5 lg:gap-2 lg:rounded-2xl lg:px-2.5',
       rowTone(p, drawing),
       !p.connected && 'opacity-50',
     )}
@@ -35,16 +36,16 @@ export const PlayerRow = ({ player: p, rank, view, drawing, delta, roomy }: Play
       <div className="flex min-w-0 items-center gap-1 text-xs font-extrabold lg:text-sm">
         <span className="truncate">{p.name}</span>
         {p.id === view.youId && <span className="hidden text-xs font-bold text-ink-soft lg:inline">{COPY.common.you}</span>}
-        {p.id === view.hostId && <Crown size={13} className="shrink-0" fill={THEME.sunny} stroke={THEME.ink} aria-label={COPY.common.host} />}
+        {p.id === view.hostId && <Crown size="0.8125rem" className="shrink-0" fill={THEME.sunny} stroke={THEME.ink} aria-label={COPY.common.host} />}
       </div>
       <div className="font-display text-sm font-semibold lg:text-base">
         {p.score}
         <span className="ml-0.5 hidden text-xs text-ink-soft lg:inline"> {COPY.common.points}</span>
       </div>
     </div>
-    {drawing && <Pencil size={16} className="shrink-0 animate-wiggle" aria-label={COPY.common.drawing} />}
-    {p.guessed && !drawing && <Check size={18} strokeWidth={3.5} className="shrink-0 text-[#0b7d67]" aria-label={COPY.common.guessed} />}
-    {!p.connected && <WifiOff size={14} aria-label={COPY.common.reconnecting} />}
+    {drawing && <Pencil size="1rem" className="shrink-0 animate-wiggle" aria-label={COPY.common.drawing} />}
+    {p.guessed && !drawing && <Check size="1.125rem" strokeWidth={3.5} className="shrink-0 text-[#0b7d67]" aria-label={COPY.common.guessed} />}
+    {!p.connected && <WifiOff size="0.875rem" aria-label={COPY.common.reconnecting} />}
     {delta ? (
       <motion.span
         initial={{ y: 8, opacity: 0, scale: 0.6 }}

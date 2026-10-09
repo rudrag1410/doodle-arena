@@ -50,7 +50,7 @@ export const ResultsPage = ({ view }: { view: RoomView }) => {
         <section className={clsx('flex min-h-0 flex-col gap-2', tab !== EndTab.Results && 'max-lg:hidden')}>
           <div className="shrink-0 text-center">
             <motion.h1 initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-3xl font-bold sm:text-4xl">
-              {winners.length === 1 ? COPY.end.winner(winners[0].name) : COPY.end.tie}
+              {winners.length === 1 && winners[0] ? COPY.end.winner(winners[0].name) : COPY.end.tie}
             </motion.h1>
             <p className="text-sm font-semibold text-ink-soft">{COPY.end.summary(view.totalRounds, view.players.length)}</p>
           </div>
@@ -69,7 +69,7 @@ export const ResultsPage = ({ view }: { view: RoomView }) => {
                       transition={{ delay: delay + 0.3, type: 'spring' }}
                       className="mb-1 flex flex-col items-center"
                     >
-                      {index === 0 && <Crown size={26} fill={THEME.sunny} stroke={THEME.ink} strokeWidth={2.5} className="animate-wiggle" />}
+                      {index === 0 && <Crown size="1.625rem" fill={THEME.sunny} stroke={THEME.ink} strokeWidth={2.5} className="animate-wiggle" />}
                       <Avatar index={r.avatar} size={index === 0 ? AVATAR_SIZE.podiumWinner : AVATAR_SIZE.podium} />
                       <span className="max-w-full truncate font-display text-base font-semibold">{r.name}</span>
                       <span className="font-display text-lg leading-none font-bold">{r.score}</span>
@@ -100,7 +100,7 @@ export const ResultsPage = ({ view }: { view: RoomView }) => {
                 <li
                   key={r.playerId}
                   className={clsx(
-                    'flex min-h-0 items-center gap-2 rounded-2xl border-[2.5px] border-ink px-2',
+                    'flex min-h-0 items-center gap-2 rounded-2xl border-(length:--border-width) border-ink px-2',
                     r.playerId === view.youId ? 'bg-sunny/40' : 'bg-white',
                   )}
                 >
@@ -113,10 +113,10 @@ export const ResultsPage = ({ view }: { view: RoomView }) => {
             </ol>
             {isHost ? (
               <button className="btn btn-primary shrink-0 text-lg" onClick={() => socket.emit(ClientEvent.GameReset)}>
-                <RotateCcw size={20} /> {COPY.end.playAgain}
+                <RotateCcw size="1.25rem" /> {COPY.end.playAgain}
               </button>
             ) : (
-              <p className="shrink-0 rounded-2xl border-[2.5px] border-dashed border-ink/40 px-3 py-2 text-center font-display text-sm font-semibold">
+              <p className="shrink-0 rounded-2xl border-(length:--border-width) border-dashed border-ink/40 px-3 py-2 text-center font-display text-sm font-semibold">
                 {COPY.end.waitingHost}
               </p>
             )}

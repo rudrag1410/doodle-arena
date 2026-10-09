@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 
-export const DOODLE_COLORS = { star: '#ffc93c', circle: '#4cb8ff', squiggle: '#25c9a6', heart: '#ff8fc7', triangle: '#7c5cff' } as const
+const DOODLE_COLORS = { star: '#ffc93c', circle: '#4cb8ff', squiggle: '#25c9a6', heart: '#ff8fc7', triangle: '#7c5cff' } as const
 
-export interface FloatingDoodle {
+interface FloatingDoodle {
   color: string
   className: string
   rotation: string

@@ -7,7 +7,7 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsup",
     "start": "node dist/index.js",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.tools.json",
     "test": "tsx --test \"src/**/*.test.ts\"",
     "loadtest": "tsx scripts/loadtest.ts",
     "e2e": "tsx scripts/e2e.ts",

@@ -1,0 +1,30 @@
+import { LIMITS } from '@doodle/shared'
+
+export const LOBBY_COPY = {
+  lobby: {
+    invite: 'Invite your friends',
+    copyLink: 'Copy link',
+    copied: 'Copied!',
+    share: 'Share',
+    shareTitle: 'Doodle Arena',
+    shareText: 'Come draw with me!',
+    players: 'Players',
+    settings: 'Game settings',
+    start: 'Start game',
+    needMore: 'Waiting for at least one more player…',
+    waitingPrefix: 'Waiting for',
+    waitingSuffix: 'to start…',
+    theHost: 'the host',
+    rounds: 'Rounds',
+    roundsHint: 'Everyone draws once per round.',
+    drawTime: 'Draw time',
+    drawTimeSuffix: 's',
+    packs: 'Word packs',
+    customWords: 'Your own words',
+    customPlaceholder: "pineapple pizza, dancing robot, grandma's kitchen…",
+    customSaved: (n: number) => `${n} saved`,
+    customOnly: 'Use only my words',
+    customOnlyNeeds: '(needs 3+)',
+    playerCount: (n: number) => `${n} / ${LIMITS.maxPlayers}`,
+  },
+} as const

@@ -24,11 +24,11 @@ export const InviteBanner = ({ roomId }: { roomId: string }) => {
         </div>
       </div>
       <button className="btn btn-sm shrink-0" onClick={() => copy(link)}>
-        {copied ? <Check size={18} className="text-mint" /> : <Copy size={18} />} {copied ? COPY.lobby.copied : COPY.lobby.copyLink}
+        {copied ? <Check size="1.125rem" className="text-mint" /> : <Copy size="1.125rem" />} {copied ? COPY.lobby.copied : COPY.lobby.copyLink}
       </button>
       {'share' in navigator && (
         <button className="btn btn-sm btn-icon shrink-0" onClick={share} aria-label={COPY.lobby.share}>
-          <Share2 size={18} />
+          <Share2 size="1.125rem" />
         </button>
       )}
     </motion.section>

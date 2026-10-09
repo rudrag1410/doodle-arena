@@ -4,7 +4,7 @@ import { ClientEvent } from '@doodle/shared'
 import { CLOCK_SYNC_GAP_MS, CLOCK_SYNC_SAMPLES } from '@/constants/timing'
 import { socket } from './socket'
 
-export interface ClockEstimate {
+interface ClockEstimate {
   offset: number
   rtt: number
 }
@@ -26,5 +26,5 @@ export const estimateClock = async (): Promise<ClockEstimate> => {
     await new Promise((r) => setTimeout(r, CLOCK_SYNC_GAP_MS))
   }
 
-  return minBy(samples, 'rtt')!
+  return minBy(samples, 'rtt') ?? { rtt: 0, offset: 0 }
 }

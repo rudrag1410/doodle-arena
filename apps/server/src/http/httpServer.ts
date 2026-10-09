@@ -17,7 +17,7 @@ const sendText = (res: ServerResponse, text: string) => {
   res.end(text)
 }
 
-export interface HttpDeps {
+interface HttpDeps {
   registry: Registry
   stats: StatsCollector
   staticDir: string
@@ -41,8 +41,10 @@ export const createHttpServer = ({ registry, stats, staticDir }: HttpDeps): Serv
 
     const match = pathname.match(ROOM_INFO_PATTERN)
 
-    if (match) {
-      const room = registry.get(match[1])
+    const roomId = match?.[1]
+
+    if (roomId) {
+      const room = registry.get(roomId)
 
       if (!room) return sendJson(res, HttpStatus.NotFound, { exists: false } satisfies RoomInfo)
 

@@ -15,7 +15,7 @@ import {
 } from '@doodle/shared'
 import { BOT_AVATAR, BOT_WAIT_DEFAULT_MS, BOT_WAIT_POLL_MS } from './constants'
 
-export type BotSocket = Socket<ServerToClientEvents, ClientToServerEvents>
+type BotSocket = Socket<ServerToClientEvents, ClientToServerEvents>
 
 export class Bot {
   readonly socket: BotSocket

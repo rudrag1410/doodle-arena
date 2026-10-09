@@ -22,7 +22,7 @@ export const Toasts = () => {
               kind === ToastKind.Error ? 'bg-[#ffe3e0]' : 'bg-[#e0f5ff]',
             )}
           >
-            {kind === ToastKind.Error ? <AlertTriangle size={18} /> : <Info size={18} />}
+            {kind === ToastKind.Error ? <AlertTriangle size="1.125rem" /> : <Info size="1.125rem" />}
             {text}
           </motion.div>
         ))}

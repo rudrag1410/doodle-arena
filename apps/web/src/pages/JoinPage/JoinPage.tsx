@@ -61,7 +61,7 @@ export const JoinPage = ({ roomId }: { roomId: string }) => {
           disabled={!name || full || join.isPending}
           type="submit"
         >
-          {join.isPending ? <Loader2 className="animate-spin" /> : <LogIn size={22} />} {full ? COPY.gate.full : COPY.gate.join}
+          {join.isPending ? <Loader2 className="animate-spin" /> : <LogIn size="1.375rem" />} {full ? COPY.gate.full : COPY.gate.join}
         </button>
         {join.error && <p className="mt-2 text-center text-sm font-bold text-tomato">{join.error.message}</p>}
       </motion.form>

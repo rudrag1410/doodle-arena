@@ -84,7 +84,9 @@ function ChoosingPanel({ view, remainingMs }: { view: RoomView; remainingMs: num
 }
 
 function TurnEndPanel({ view, remainingMs }: { view: RoomView; remainingMs: number }) {
-  const result = view.turnResult!
+  const result = view.turnResult
+
+  if (!result) return null
 
   const rows = take(
     orderBy(
@@ -135,11 +137,11 @@ function ReasonBadge({ reason }: { reason: TurnEndReason }) {
   return (
     <span
       className={clsx(
-        'inline-flex items-center gap-2 rounded-full border-[2.5px] border-ink px-3 py-1 font-display text-base font-semibold @lg:px-4 @lg:py-1.5 @lg:text-lg',
+        'inline-flex items-center gap-2 rounded-full border-(length:--border-width) border-ink px-3 py-1 font-display text-base font-semibold @lg:px-4 @lg:py-1.5 @lg:text-lg',
         style?.tone ?? 'bg-sunny',
       )}
     >
-      <Icon size={20} /> {COPY.overlay.reasons[reason] ?? COPY.overlay.turnOver}
+      <Icon size="1.25rem" /> {COPY.overlay.reasons[reason] ?? COPY.overlay.turnOver}
     </span>
   )
 }

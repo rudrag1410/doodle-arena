@@ -20,5 +20,13 @@ export const useDrawingShortcuts = (enabled: boolean, { onUndo, onRedo, onTool, 
   useHotkeys(HOTKEYS.pen, () => onTool(HOTKEY_TOOLS.pen), base)
   useHotkeys(HOTKEYS.eraser, () => onTool(HOTKEY_TOOLS.eraser), base)
   useHotkeys(HOTKEYS.fill, () => onTool(HOTKEY_TOOLS.fill), base)
-  useHotkeys(HOTKEYS.sizes, (e) => onSize(SIZE_SHORTCUTS[e.key]), base)
+  useHotkeys(
+    HOTKEYS.sizes,
+    (e) => {
+      const size = SIZE_SHORTCUTS[e.key]
+
+      if (size) onSize(size)
+    },
+    base,
+  )
 }

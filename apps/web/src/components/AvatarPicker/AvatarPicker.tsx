@@ -14,7 +14,7 @@ export const AvatarPicker = ({ value, onChange }: { value: number; onChange: (i:
         aria-label={COPY.common.avatarLabel(i + 1)}
         onClick={() => onChange(i)}
         className={clsx(
-          'grid aspect-square place-items-center rounded-2xl border-[2.5px] border-ink text-xl transition sm:text-2xl',
+          'grid aspect-square place-items-center rounded-2xl border-(length:--border-width) border-ink text-xl transition sm:text-2xl',
           value === i ? 'scale-110 shadow-pop-sm' : 'opacity-80 hover:-translate-y-0.5 hover:opacity-100',
         )}
         style={{ background: bg }}
