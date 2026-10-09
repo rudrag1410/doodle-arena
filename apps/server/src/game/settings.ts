@@ -1,4 +1,4 @@
-import { DEFAULT_PACKS, LIMITS, MIN_CUSTOM_WORDS_ONLY, PACK_IDS, PackId, SETTING_BOUNDS, clampInt, type RoomSettings } from '@doodle/shared'
+import { DEFAULT_PACKS, LIMITS, MIN_CUSTOM_WORDS_ONLY, PACK_IDS, type PackId, SETTING_BOUNDS, clampInt, type RoomSettings } from '@doodle/shared'
 import { cleanWords } from '../utils/text'
 export const defaultSettings = (): RoomSettings => ({
   rounds: SETTING_BOUNDS.rounds.default,

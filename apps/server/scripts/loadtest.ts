@@ -190,7 +190,9 @@ async function main() {
   const poll = setInterval(async () => {
     try {
       samples.push((await (await fetch(`${url}${SERVER_STATS_PATH}`)).json()) as ServerStats)
-    } catch {}
+    } catch {
+      return
+    }
   }, LOAD.pollMs)
   const t0 = Date.now()
   while (results.length < kids.length && Date.now() - t0 < (SECONDS + LOAD.parentTimeoutExtraS) * 1000) await sleep(250)

@@ -2,7 +2,7 @@
   "name": "doodle-arena",
   "private": true,
   "version": "1.0.0",
-  "description": "Real-time multiplayer drawing & guessing game \u2014 pnpm monorepo (tldraw canvas, authoritative Node server).",
+  "description": "Real-time multiplayer drawing & guessing game — pnpm monorepo (tldraw canvas, authoritative Node server).",
   "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad",
   "engines": {
     "node": ">=20"
@@ -16,10 +16,21 @@
     "loadtest": "pnpm --filter @doodle/server loadtest",
     "e2e": "pnpm --filter @doodle/server e2e",
     "demo-bots": "pnpm --filter @doodle/server demo-bots",
-    "format": "prettier --write \"apps/**/*.{ts,tsx,css,json}\" \"*.json\""
+    "format": "prettier --write .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format:check": "prettier --check .",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.13.0",
     "prettier": "^3.9.9",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.71.1"
   }
 }

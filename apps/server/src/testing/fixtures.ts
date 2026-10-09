@@ -1,5 +1,4 @@
 import {
-  CanvasRejectReason,
   DashStyle,
   FillStyle,
   PAGE_ID,

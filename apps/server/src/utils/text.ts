@@ -3,7 +3,7 @@ import { CUSTOM_WORD_PATTERN, HINTS } from '@doodle/shared'
 const NON_ALNUM = /[^\p{L}\p{N}]/gu
 const WORD_TOKEN = /[\p{L}\p{N}]+/gu
 const LETTER = /[\p{L}\p{N}]/u
-const CONTROL_CHARS = /[\u0000-\u001f\u007f]/g
+const CONTROL_CHARS = /\p{Cc}/gu
 const WHITESPACE_RUN = /\s+/g
 const fold = (s: string) => deburr(s).toLowerCase()
 export const normalize = (s: string): string => fold(s).replace(NON_ALNUM, '')

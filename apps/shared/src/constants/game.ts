@@ -41,7 +41,7 @@ export const CLOSE_GUESS = {
   maxDistanceShort: 1,
   maxDistanceLong: 2,
 } as const
-export const CUSTOM_WORD_PATTERN = /^[\p{L}\p{N}][\p{L}\p{N} '\-]{0,28}[\p{L}\p{N}]$/u
+export const CUSTOM_WORD_PATTERN = /^[\p{L}\p{N}][\p{L}\p{N} '-]{0,28}[\p{L}\p{N}]$/u
 export const MS_PER_SECOND = 1000
 export const MAX_UNIQUE_NAME_SUFFIX = 100
 export const NAME_SUFFIX_ROOM = 3

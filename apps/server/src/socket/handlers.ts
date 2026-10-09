@@ -3,7 +3,6 @@ import {
   CanvasRejectReason,
   ClientEvent,
   JoinErrorCode,
-  LIMITS,
   ServerEvent,
   SocketLifecycle,
   ToastKind,

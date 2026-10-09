@@ -34,7 +34,9 @@ export function applyRemote(editor: Editor, puts: ShapeRecord[], removes: string
         for (const rec of puts) {
           try {
             editor.store.put([rec as unknown as TLRecord])
-          } catch {}
+          } catch {
+            continue
+          }
         }
       }
     }
