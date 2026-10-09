@@ -15,6 +15,20 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       'no-console': ['warn', { allow: ['warn', 'error', 'log'] }],
       eqeqeq: ['error', 'always', { null: 'ignore' }],
+      curly: ['error', 'multi-line'],
+      'prefer-const': 'error',
+      'no-var': 'error',
+      'no-else-return': 'error',
+      'no-nested-ternary': 'error',
+      'no-param-reassign': 'error',
+      'no-return-assign': 'error',
+      'no-shadow': 'off',
+      '@typescript-eslint/no-shadow': 'error',
+      '@typescript-eslint/no-non-null-assertion': 'off',
+      complexity: ['error', 12],
+      'max-depth': ['error', 4],
+      'max-params': ['error', 5],
+      'max-lines': ['error', { max: 520, skipBlankLines: true }],
     },
   },
   {
@@ -30,6 +44,10 @@ export default tseslint.config(
   {
     files: ['apps/server/**/*.ts', 'apps/shared/**/*.ts', '*.config.{js,ts}'],
     languageOptions: { globals: globals.node },
+  },
+  {
+    files: ['apps/server/scripts/**/*.ts', '**/*.test.ts'],
+    rules: { complexity: 'off', 'max-lines': 'off' },
   },
   prettier,
 )

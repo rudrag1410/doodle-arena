@@ -1,17 +1,16 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
 import clsx from 'clsx'
-import { Crown, LogOut, RotateCcw } from 'lucide-react'
+import { Crown, RotateCcw } from 'lucide-react'
 import { ClientEvent, type RoomView } from '@doodle/shared'
 import { COPY } from '../../constants/copy'
 import { SPRING } from '../../constants/motion'
 import { THEME } from '../../constants/theme'
 import { AVATAR_SIZE } from '../../constants/ui'
-import { useLeaveRoom } from '../../hooks'
 import { socket } from '../../services/socket'
 import { useGame } from '../../store'
 import { Confetti } from '../board/Confetti'
-import { Avatar, Logo, Screen, SoundToggle, TabBar } from '../common'
+import { Avatar, RoomHeader, Screen, TabBar } from '../common'
 import { ReplayPlayer } from '../replay/ReplayPlayer'
 const PODIUM = [
   { index: 1, height: 'h-[11dvh]', tone: 'bg-[#dfe6ee]', delay: 0.35 },
@@ -28,7 +27,6 @@ const TABS = [
   { id: EndTab.Replay, label: COPY.tabs.replay },
 ]
 export const GameEnd = ({ view }: { view: RoomView }) => {
-  const leave = useLeaveRoom()
   const replay = useGame((s) => s.replay)
   const [tab, setTab] = useState(EndTab.Results)
   const ranking = view.ranking ?? []
@@ -38,15 +36,7 @@ export const GameEnd = ({ view }: { view: RoomView }) => {
   return (
     <Screen className="gap-2 p-3 lg:gap-3 lg:p-5">
       {youWon && <Confetti />}
-      <header className="flex shrink-0 items-center justify-between">
-        <Logo />
-        <div className="flex items-center gap-2">
-          <SoundToggle />
-          <button className="btn btn-sm" onClick={leave}>
-            <LogOut size={16} /> {COPY.common.leave}
-          </button>
-        </div>
-      </header>
+      <RoomHeader />
       <TabBar tabs={TABS} value={tab} onChange={setTab} />
 
       <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(0,460px)_minmax(0,1fr)] lg:gap-5">

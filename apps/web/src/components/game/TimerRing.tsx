@@ -4,8 +4,11 @@ import { THEME, TIMER_THRESHOLDS } from '../../constants/theme'
 import { MS_PER_SECOND } from '../../constants/timing'
 const RING = { box: 60, centre: 30, radius: 24, stroke: 5 } as const
 const CIRCUMFERENCE = 2 * Math.PI * RING.radius
-const ringColor = (fraction: number) =>
-  fraction > TIMER_THRESHOLDS.healthy ? THEME.mint : fraction > TIMER_THRESHOLDS.warning ? THEME.sunny : THEME.tomato
+const ringColor = (fraction: number) => {
+  if (fraction > TIMER_THRESHOLDS.healthy) return THEME.mint
+  if (fraction > TIMER_THRESHOLDS.warning) return THEME.sunny
+  return THEME.tomato
+}
 export const TimerRing = ({ remainingMs, totalMs, urgent }: { remainingMs: number; totalMs: number; urgent?: boolean }) => {
   const fraction = totalMs > 0 ? clamp(remainingMs / totalMs, 0, 1) : 0
   const secs = ceil(remainingMs / MS_PER_SECOND)

@@ -9,18 +9,18 @@ import { BoardFrame } from '../board/BoardFrame'
 import { Logo, Screen, SoundToggle, TabBar } from '../common'
 import { BoardOverlay, Chat, PlayerList, TimerRing, Toolbar, WordBar } from '../game'
 enum SidePanel {
-  Chat = 'chat',
+  Messages = 'chat',
   Players = 'players',
 }
 const TABS = [
-  { id: SidePanel.Chat, label: COPY.tabs.chat },
+  { id: SidePanel.Messages, label: COPY.tabs.chat },
   { id: SidePanel.Players, label: COPY.tabs.players },
 ]
 const CLOCK_PHASES: ReadonlySet<Phase> = new Set([Phase.Drawing, Phase.Choosing, Phase.TurnEnd])
 export const Game = ({ view }: { view: RoomView }) => {
   const leave = useLeaveRoom()
   const boardRef = useRef<BoardHandle>(null)
-  const [panel, setPanel] = useState(SidePanel.Chat)
+  const [panel, setPanel] = useState(SidePanel.Messages)
   const isDrawer = view.drawerId === view.youId
   const canDraw = isDrawer && view.phase === Phase.Drawing
   const turnKey = `${view.round}:${view.drawerId}`
@@ -94,7 +94,7 @@ export const Game = ({ view }: { view: RoomView }) => {
           <aside className={clsx('card min-h-0 flex-1 p-2 lg:order-1 lg:flex-none', panel !== SidePanel.Players && 'max-lg:hidden')}>
             <PlayerList view={view} />
           </aside>
-          <aside className={clsx('min-h-0 flex-1 lg:order-3 lg:flex-none', panel !== SidePanel.Chat && 'max-lg:hidden')}>
+          <aside className={clsx('min-h-0 flex-1 lg:order-3 lg:flex-none', panel !== SidePanel.Messages && 'max-lg:hidden')}>
             <Chat view={view} />
           </aside>
         </div>

@@ -1,12 +1,26 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
 import { Loader2, LogIn, Users } from 'lucide-react'
-import { JoinErrorCode, LIMITS, Phase } from '@doodle/shared'
+import { JoinErrorCode, LIMITS, Phase, type RoomInfo } from '@doodle/shared'
 import { COPY } from '../../constants/copy'
 import { useJoinRoom, useRoomInfo } from '../../hooks'
 import { useProfileStore } from '../../store'
 import { AvatarPicker, Logo, Screen } from '../common'
 import { ErrorScreen } from './StatusScreens'
+const isRoomFull = (info?: RoomInfo) => !!info?.players && info.players >= (info.maxPlayers ?? LIMITS.maxPlayers)
+
+const RoomSummary = ({ info }: { info: RoomInfo }) => {
+  if (info.players === undefined) return null
+  const inProgress = !!info.phase && info.phase !== Phase.Lobby
+  return (
+    <div className="mt-1 inline-flex items-center gap-1.5 text-sm font-bold text-ink-soft">
+      <Users size={15} /> {COPY.gate.inRoom(info.players)}
+      {info.host && COPY.gate.hostedBy(info.host)}
+      {inProgress && COPY.gate.inProgress}
+    </div>
+  )
+}
+
 export const JoinGate = ({ roomId }: { roomId: string }) => {
   const stored = useProfileStore()
   const [profile, setProfile] = useState({ name: stored.name, avatar: stored.avatar })
@@ -14,7 +28,7 @@ export const JoinGate = ({ roomId }: { roomId: string }) => {
   const join = useJoinRoom()
   if (info && !info.exists) return <ErrorScreen error={{ code: JoinErrorCode.RoomNotFound, message: '' }} />
   const name = profile.name.trim()
-  const full = !!info?.players && info.players >= (info.maxPlayers ?? LIMITS.maxPlayers)
+  const full = isRoomFull(info)
   return (
     <Screen className="items-center justify-center gap-4 p-4 short:gap-0 short:p-2">
       <div className="short:hidden">
@@ -32,13 +46,7 @@ export const JoinGate = ({ roomId }: { roomId: string }) => {
         <div className="mb-3 text-center short:mb-1.5">
           <div className="label">{COPY.gate.invited}</div>
           <div className="font-display text-3xl font-bold tracking-[0.2em] short:text-2xl sm:text-4xl">{roomId}</div>
-          {info?.players !== undefined && (
-            <div className="mt-1 inline-flex items-center gap-1.5 text-sm font-bold text-ink-soft">
-              <Users size={15} /> {COPY.gate.inRoom(info.players)}
-              {info.host ? COPY.gate.hostedBy(info.host) : ''}
-              {info.phase && info.phase !== Phase.Lobby ? COPY.gate.inProgress : ''}
-            </div>
-          )}
+          {info && <RoomSummary info={info} />}
         </div>
         <label className="label" htmlFor="gate-name">
           {COPY.common.nameLabel}

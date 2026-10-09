@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import clsx from 'clsx'
-import { LogOut, Play } from 'lucide-react'
+import { Play } from 'lucide-react'
 import { ClientEvent, MIN_PLAYERS_TO_START, type RoomView } from '@doodle/shared'
 import { COPY } from '../../constants/copy'
-import { useLeaveRoom } from '../../hooks'
 import { socket } from '../../services/socket'
-import { Logo, Screen, SoundToggle, TabBar } from '../common'
+import { RoomHeader, Screen, TabBar } from '../common'
 import { Chat } from '../game/Chat'
 import { InviteBanner } from '../lobby/InviteBanner'
 import { PlayerRoster } from '../lobby/PlayerRoster'
@@ -19,22 +18,13 @@ const TABS = [
   { id: LobbyTab.Settings, label: COPY.tabs.settings },
 ]
 export const Lobby = ({ view }: { view: RoomView }) => {
-  const leave = useLeaveRoom()
   const [tab, setTab] = useState(LobbyTab.Players)
   const isHost = view.hostId === view.youId
   const canStart = isHost && view.players.filter((p) => p.connected).length >= MIN_PLAYERS_TO_START
   const hostName = view.players.find((p) => p.id === view.hostId)?.name ?? COPY.lobby.theHost
   return (
     <Screen className="gap-2 p-3 sm:gap-3 lg:p-5">
-      <header className="flex shrink-0 items-center justify-between">
-        <Logo />
-        <div className="flex items-center gap-2">
-          <SoundToggle />
-          <button className="btn btn-sm" onClick={leave}>
-            <LogOut size={16} /> {COPY.common.leave}
-          </button>
-        </div>
-      </header>
+      <RoomHeader />
 
       <InviteBanner roomId={view.roomId} />
       <TabBar tabs={TABS} value={tab} onChange={setTab} />

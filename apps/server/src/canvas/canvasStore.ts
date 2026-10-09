@@ -14,6 +14,8 @@ export type ApplyResult =
       reason: CanvasRejectReason.Invalid | CanvasRejectReason.TooLarge
       message: string
     }
+type RejectedResult = Extract<ApplyResult, { ok: false }>
+
 export class CanvasStore {
   readonly shapes = new Map<string, ShapeRecord>()
   private sizes = new Map<string, number>()
@@ -33,15 +35,27 @@ export class CanvasStore {
     this.lastTouched = 0
   }
   apply(puts: ShapeRecord[], removes: string[]): ApplyResult {
+    const checked = this.validate(puts, removes)
+    if (!checked.ok) return checked
+    for (const rec of puts) this.shapes.set(rec.id, rec)
+    for (const [id, size] of checked.sizes) {
+      this.totalBytes += size - (this.sizes.get(id) ?? 0)
+      this.sizes.set(id, size)
+    }
+    const removed = removes.filter((id) => this.removeShape(id))
+    if (puts.length === 0 && removed.length === 0) return { ok: true, seq: this.seq, puts: [], removes: [] }
+    this.seq++
+    this.record(puts, removed)
+    return { ok: true, seq: this.seq, puts, removes: removed }
+  }
+  private validate(puts: ShapeRecord[], removes: string[]): RejectedResult | { ok: true; sizes: Map<string, number> } {
     const sizes = new Map<string, number>()
     for (const rec of puts) {
       const c = checkShape(rec)
       if (!c.ok) return c
       sizes.set(rec.id, c.bytes)
     }
-    for (const id of removes) {
-      if (!isShapeId(id)) return { ok: false, reason: CanvasRejectReason.Invalid, message: VALIDATION_MESSAGES.badId }
-    }
+    if (!removes.every(isShapeId)) return { ok: false, reason: CanvasRejectReason.Invalid, message: VALIDATION_MESSAGES.badId }
     let count = this.shapes.size
     let bytes = this.totalBytes
     for (const [id, size] of sizes) {
@@ -51,23 +65,16 @@ export class CanvasStore {
     if (count > LIMITS.canvasShapes || bytes > LIMITS.canvasBytes) {
       return { ok: false, reason: CanvasRejectReason.TooLarge, message: VALIDATION_MESSAGES.canvasFull }
     }
-    for (const rec of puts) this.shapes.set(rec.id, rec)
-    for (const [id, size] of sizes) {
-      this.totalBytes += size - (this.sizes.get(id) ?? 0)
-      this.sizes.set(id, size)
-    }
-    const removed: string[] = []
-    for (const id of removes) {
-      if (!this.shapes.delete(id)) continue
-      this.totalBytes -= this.sizes.get(id) ?? 0
-      this.sizes.delete(id)
-      removed.push(id)
-    }
-    if (puts.length === 0 && removed.length === 0) return { ok: true, seq: this.seq, puts: [], removes: [] }
-    this.seq++
-    this.record(puts, removed)
-    return { ok: true, seq: this.seq, puts, removes: removed }
+    return { ok: true, sizes }
   }
+
+  private removeShape(id: string): boolean {
+    if (!this.shapes.delete(id)) return false
+    this.totalBytes -= this.sizes.get(id) ?? 0
+    this.sizes.delete(id)
+    return true
+  }
+
   replaceAll(shapes: ShapeRecord[]): ApplyResult {
     const keep = new Set(shapes.map((s) => s.id))
     const stale = [...this.shapes.keys()].filter((id) => !keep.has(id))
@@ -81,15 +88,7 @@ export class CanvasStore {
     if (this.events.length >= LIMITS.replayEventsPerTurn) return
     const t = this.now() - this.startedAt
     const last = this.events[this.events.length - 1]
-    const continuesLastStroke =
-      last &&
-      removes.length === 0 &&
-      puts.length === 1 &&
-      last.puts?.length === 1 &&
-      !last.removes?.length &&
-      last.puts[0].id === puts[0].id &&
-      t - this.lastTouched < REPLAY_COALESCE_MS
-    if (continuesLastStroke) {
+    if (last && this.continuesStroke(last, puts, removes, t)) {
       last.puts = [puts[0]]
       last.d = t - last.t
     } else {
@@ -97,6 +96,11 @@ export class CanvasStore {
     }
     this.lastTouched = t
   }
+  private continuesStroke(last: ReplayEvent, puts: ShapeRecord[], removes: string[], t: number): boolean {
+    const sameShape = last.puts?.length === 1 && puts.length === 1 && last.puts[0].id === puts[0].id
+    return sameShape && removes.length === 0 && !last.removes?.length && t - this.lastTouched < REPLAY_COALESCE_MS
+  }
+
   snapshot(): ShapeRecord[] {
     return [...this.shapes.values()]
   }

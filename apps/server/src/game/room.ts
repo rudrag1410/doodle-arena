@@ -1,4 +1,4 @@
-import { find, findIndex, max, orderBy, random, range, round, sample } from 'lodash-es'
+import { random, round, sample } from 'lodash-es'
 import {
   AVATARS,
   CanvasRejectReason,
@@ -6,9 +6,7 @@ import {
   DEFAULT_PLAYER_NAME,
   JoinErrorCode,
   LIMITS,
-  MAX_UNIQUE_NAME_SUFFIX,
   MS_PER_SECOND,
-  NAME_SUFFIX_ROOM,
   MIN_PLAYERS_IN_GAME,
   MIN_PLAYERS_TO_START,
   Phase,
@@ -35,6 +33,7 @@ import { hintSchedule } from './hints'
 import { drawerBonus, guessPoints } from './scoring'
 import { sanitizeSettings } from './settings'
 import type { Conn, Player, RoomHooks, RoomOptions, RoomSnapshot } from './types'
+import { buildRanking, buildReplayTurn, uniqueName } from './roomHelpers'
 import { pickChoices } from './wordPool'
 export const DEFAULT_OPTIONS: Omit<RoomOptions, keyof RoomHooks> = {
   chooseMs: env.chooseMs,
@@ -52,6 +51,15 @@ type CanvasResult =
       reason: CanvasRejectReason
       message: string
     }
+const toPublicPlayer = (p: Player): PublicPlayer => ({
+  id: p.id,
+  name: p.name,
+  avatar: p.avatar,
+  score: p.score,
+  connected: !!p.conn,
+  guessed: p.guessed,
+})
+
 export class Room {
   readonly id: string
   settings: RoomSettings
@@ -102,7 +110,7 @@ export class Room {
     const player: Player = {
       id: newPlayerId(),
       token: newToken(),
-      name: this.uniqueName(cleanName(name, LIMITS.nameLen, DEFAULT_PLAYER_NAME)),
+      name: uniqueName(cleanName(name, LIMITS.nameLen, DEFAULT_PLAYER_NAME), this.players.values()),
       avatar: clampInt(avatar, 0, AVATARS.length - 1, 0),
       score: 0,
       guessed: false,
@@ -113,8 +121,7 @@ export class Room {
     if (!this.hostId || !this.players.has(this.hostId)) this.hostId = player.id
     this.systemChat(CHAT_MESSAGES.joined(player.name))
     this.syncNewcomer(player)
-    this.emitState()
-    this.opts.onChange()
+    this.commit()
     return player
   }
   rejoin(playerId: string, token: string, conn: Conn): Player | null {
@@ -148,30 +155,33 @@ export class Room {
       this.opts.onEmpty()
       return
     }
-    if (this.hostId === playerId) {
-      const next = this.connectedPlayers[0] ?? [...this.players.values()][0]
-      this.hostId = next.id
-      this.systemChat(CHAT_MESSAGES.newHost(next.name))
-    }
-    const inTurn = this.phase === Phase.Choosing || this.phase === Phase.Drawing
-    if (inTurn) {
-      if (this.players.size < MIN_PLAYERS_IN_GAME) return this.abortToLobby()
-      if (playerId === this.drawerId) {
-        this.systemChat(CHAT_MESSAGES.drawerLeft)
-        return this.endTurn(TurnEndReason.DrawerLeft)
-      }
-      if (this.phase === Phase.Drawing && this.everyoneGuessed()) return this.endTurn(TurnEndReason.AllGuessed)
-    } else if (this.phase === Phase.TurnEnd && this.players.size < MIN_PLAYERS_IN_GAME) {
-      return this.abortToLobby()
-    }
-    this.emitState()
-    this.opts.onChange()
+    if (this.hostId === playerId) this.promoteHost()
+    if (!this.recoverAfterLeave(playerId)) this.commit()
   }
-  private uniqueName(name: string): string {
-    const taken = new Set([...this.players.values()].map((p) => p.name.toLowerCase()))
-    if (!taken.has(name.toLowerCase())) return name
-    const candidates = range(2, MAX_UNIQUE_NAME_SUFFIX).map((i) => `${name.slice(0, LIMITS.nameLen - NAME_SUFFIX_ROOM)} ${i}`)
-    return find(candidates, (c) => !taken.has(c.toLowerCase())) ?? name
+
+  private promoteHost() {
+    const next = this.connectedPlayers[0] ?? [...this.players.values()][0]
+    this.hostId = next.id
+    this.systemChat(CHAT_MESSAGES.newHost(next.name))
+  }
+
+  private recoverAfterLeave(leftId: string): boolean {
+    const tooFew = this.players.size < MIN_PLAYERS_IN_GAME
+    if ((this.inTurn || this.phase === Phase.TurnEnd) && tooFew) {
+      this.abortToLobby()
+      return true
+    }
+    if (!this.inTurn) return false
+    if (leftId === this.drawerId) {
+      this.systemChat(CHAT_MESSAGES.drawerLeft)
+      this.endTurn(TurnEndReason.DrawerLeft)
+      return true
+    }
+    if (this.phase === Phase.Drawing && this.everyoneGuessed()) {
+      this.endTurn(TurnEndReason.AllGuessed)
+      return true
+    }
+    return false
   }
   private syncNewcomer(p: Player) {
     if (!p.conn) return
@@ -182,8 +192,7 @@ export class Room {
     if (by !== this.hostId) return ERROR_MESSAGES.onlyHostSettings
     if (this.phase !== Phase.Lobby) return ERROR_MESSAGES.settingsLocked
     this.settings = sanitizeSettings(patch, this.settings)
-    this.emitState()
-    this.opts.onChange()
+    this.commit()
     return null
   }
   start(by: string): string | null {
@@ -221,11 +230,9 @@ export class Room {
       p.score = 0
       p.guessed = false
     })
-    this.canvas.reset()
-    this.broadcast((c) => c.send(ServerEvent.CanvasFull, { seq: 0, shapes: [] }))
+    this.resetCanvas()
     this.phaseEndsAt = this.phaseDurationMs = null
-    this.emitState()
-    this.opts.onChange()
+    this.commit()
   }
   private abortToLobby() {
     this.toLobby()
@@ -253,14 +260,12 @@ export class Room {
     this.deltas.clear()
     this.players.forEach((p) => (p.guessed = false))
     this.choices = pickChoices(this.settings, this.used)
-    this.canvas.reset()
-    this.broadcast((c) => c.send(ServerEvent.CanvasFull, { seq: 0, shapes: [] }))
+    this.resetCanvas()
     this.phase = Phase.Choosing
     this.setPhaseClock(this.opts.chooseMs)
     this.phaseTimer = setTimeout(() => this.pickWord(drawer.id, random(this.choices!.length - 1)), this.opts.chooseMs)
     this.systemChat(CHAT_MESSAGES.choosing(drawer.name))
-    this.emitState()
-    this.opts.onChange()
+    this.commit()
   }
   pickWord(by: string, index: number): string | null {
     if (this.phase !== Phase.Choosing || by !== this.drawerId || !this.choices) return ERROR_MESSAGES.notChoosing
@@ -279,8 +284,7 @@ export class Room {
     this.setPhaseClock(total)
     this.phaseTimer = setTimeout(() => this.endTurn(TurnEndReason.Time), total)
     this.hintTimers = hintSchedule(this.word!).map((fraction) => setTimeout(() => this.revealLetter(), total * fraction))
-    this.emitState()
-    this.opts.onChange()
+    this.commit()
   }
   private revealLetter() {
     if (this.phase !== Phase.Drawing || !this.word) return
@@ -296,7 +300,7 @@ export class Room {
   private endTurn(reason: TurnEndReason) {
     if (this.phase !== Phase.Drawing && this.phase !== Phase.Choosing) return
     this.clearTimers()
-    const drawer = this.drawerId ? this.players.get(this.drawerId) : undefined
+    const drawer = this.drawer
     if (!this.word) {
       this.nextTurn()
       return
@@ -308,37 +312,30 @@ export class Room {
       deltas: Object.fromEntries(this.deltas),
     }
     if (this.canvas.events.length > 0) {
-      this.replay.push({
-        round: this.round,
-        drawerId: this.drawerId!,
-        drawerName: drawer?.name ?? this.drawerInfo.name,
-        drawerAvatar: drawer?.avatar ?? this.drawerInfo.avatar,
-        word: this.word,
-        durationMs: max(this.canvas.events.map((e) => e.t + (e.d ?? 0))) ?? 0,
-        events: this.canvas.events,
-      })
+      this.replay.push(
+        buildReplayTurn({
+          round: this.round,
+          drawerId: this.drawerId!,
+          drawerName: drawer?.name ?? this.drawerInfo.name,
+          drawerAvatar: drawer?.avatar ?? this.drawerInfo.avatar,
+          word: this.word,
+          events: this.canvas.events,
+        }),
+      )
       this.canvas.events = []
     }
     this.phase = Phase.TurnEnd
     this.setPhaseClock(this.opts.turnEndMs)
     this.phaseTimer = setTimeout(() => this.nextTurn(), this.opts.turnEndMs)
     this.systemChat(CHAT_MESSAGES.wordWas(this.word))
-    this.emitState()
-    this.opts.onChange()
+    this.commit()
   }
   private endGame() {
     this.clearTimers()
     this.phase = Phase.GameEnd
     this.drawerId = null
     this.word = null
-    const sorted = orderBy([...this.players.values()], 'score', 'desc')
-    this.ranking = sorted.map((p) => ({
-      playerId: p.id,
-      name: p.name,
-      avatar: p.avatar,
-      score: p.score,
-      rank: findIndex(sorted, (q) => q.score === p.score) + 1,
-    }))
+    this.ranking = buildRanking(this.players.values())
     this.phaseEndsAt = this.phaseDurationMs = null
     this.emitState()
     this.broadcast((c) => c.send(ServerEvent.Replay, this.replay))
@@ -374,14 +371,13 @@ export class Room {
     })
     p.guessed = true
     this.credit(p, points)
-    const drawer = this.drawerId ? this.players.get(this.drawerId) : undefined
+    const drawer = this.drawer
     if (drawer) this.credit(drawer, drawerBonus(points))
     this.deliver({ kind: ChatKind.Correct, playerId: p.id, name: p.name, text: CHAT_MESSAGES.guessed(p.name) }, () => true)
     if (this.everyoneGuessed()) {
       this.endTurn(TurnEndReason.AllGuessed)
     } else {
-      this.emitState()
-      this.opts.onChange()
+      this.commit()
     }
   }
   private credit(p: Player, points: number) {
@@ -395,6 +391,24 @@ export class Room {
     const full: ChatMessage = { id: `${this.opts.now()}-${this.msgSeq++}`, ts: this.opts.now(), ...msg }
     for (const p of this.players.values()) if (p.conn && to(p)) p.conn.send(ServerEvent.Chat, full)
   }
+  private get inTurn() {
+    return this.phase === Phase.Choosing || this.phase === Phase.Drawing
+  }
+
+  private get drawer() {
+    return this.drawerId ? this.players.get(this.drawerId) : undefined
+  }
+
+  private commit() {
+    this.emitState()
+    this.opts.onChange()
+  }
+
+  private resetCanvas() {
+    this.canvas.reset()
+    this.broadcast((c) => c.send(ServerEvent.CanvasFull, { seq: 0, shapes: [] }))
+  }
+
   private canDraw(by: string) {
     return by === this.drawerId && this.phase === Phase.Drawing
   }
@@ -425,26 +439,22 @@ export class Room {
     this.broadcast((c) => c.send(ServerEvent.CanvasFull, { seq: this.canvas.seq, shapes: this.canvas.snapshot() }), by)
     return { ok: true }
   }
+  private drawerAwayNotice(): string | null {
+    const drawer = this.drawer
+    if (!drawer || drawer.conn || !this.inTurn) return null
+    return NOTICE_MESSAGES.drawerAway(drawer.name, round(this.opts.graceMs / MS_PER_SECOND))
+  }
+
   viewFor(p: Player): RoomView {
     const drawing = this.phase === Phase.Drawing && !!this.word
     const sees = drawing && (p.id === this.drawerId || p.guessed)
-    const drawer = this.drawerId ? this.players.get(this.drawerId) : undefined
-    const inTurn = this.phase === Phase.Choosing || this.phase === Phase.Drawing
-    const drawerAway = !!drawer && !drawer.conn && inTurn
     return {
       roomId: this.id,
       phase: this.phase,
       settings: this.settings,
       hostId: this.hostId,
       youId: p.id,
-      players: [...this.players.values()].map((q): PublicPlayer => ({
-        id: q.id,
-        name: q.name,
-        avatar: q.avatar,
-        score: q.score,
-        connected: !!q.conn,
-        guessed: q.guessed,
-      })),
+      players: [...this.players.values()].map(toPublicPlayer),
       round: this.round,
       totalRounds: this.settings.rounds,
       drawerId: this.drawerId,
@@ -456,7 +466,7 @@ export class Room {
       wordChoices: this.phase === Phase.Choosing && p.id === this.drawerId ? this.choices : null,
       turnResult: this.phase === Phase.TurnEnd ? this.turnResult : null,
       ranking: this.phase === Phase.GameEnd ? this.ranking : null,
-      notice: drawerAway ? NOTICE_MESSAGES.drawerAway(drawer!.name, round(this.opts.graceMs / MS_PER_SECOND)) : null,
+      notice: this.drawerAwayNotice(),
     }
   }
   emitState() {
