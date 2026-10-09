@@ -36,7 +36,7 @@ const ICON_BTN = 'btn btn-icon max-sm:!rounded-lg max-sm:!p-1.5'
 export const Toolbar = ({ tool, setTool, color, setColor, size, setSize, onUndo, onClear, disabled }: Props) => (
   <div
     className={clsx(
-      'card flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1.5 p-2 transition sm:gap-x-4 sm:p-2.5',
+      'card flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1.5 p-2 transition sm:gap-x-4 sm:p-2.5 short:landscape:min-h-0 short:landscape:w-[9.5rem] short:landscape:flex-col short:landscape:flex-nowrap short:landscape:items-stretch short:landscape:gap-1.5 short:landscape:overflow-y-auto short:landscape:p-1.5',
       disabled && 'pointer-events-none opacity-50',
     )}
     role="toolbar"
@@ -62,7 +62,7 @@ export const Toolbar = ({ tool, setTool, color, setColor, size, setSize, onUndo,
     </div>
 
     <div
-      className="order-last grid basis-full grid-cols-[repeat(13,minmax(0,1fr))] gap-1 sm:order-none sm:basis-auto sm:gap-1.5"
+      className="order-last grid basis-full grid-cols-[repeat(13,minmax(0,1fr))] gap-1 sm:order-none sm:basis-auto sm:gap-1.5 short:landscape:order-none short:landscape:basis-auto short:landscape:grid-cols-5 short:landscape:gap-1"
       role="radiogroup"
       aria-label={COPY.toolbar.colour}
     >
@@ -75,7 +75,7 @@ export const Toolbar = ({ tool, setTool, color, setColor, size, setSize, onUndo,
           title={colourName(id)}
           onClick={() => setColor(id)}
           className={clsx(
-            'aspect-square w-full rounded-full border-2 border-ink transition hover:-translate-y-0.5 sm:size-7 sm:border-(length:--border-width)',
+            'aspect-square w-full rounded-full border-2 border-ink transition hover:-translate-y-0.5 sm:size-7 sm:border-(length:--border-width) short:landscape:size-auto',
             color === id && 'scale-110 ring-[3px] ring-sky ring-offset-1',
           )}
           style={{ background: hex }}
@@ -102,7 +102,7 @@ export const Toolbar = ({ tool, setTool, color, setColor, size, setSize, onUndo,
       ))}
     </div>
 
-    <div className="ml-auto flex gap-1">
+    <div className="ml-auto flex gap-1 short:landscape:ml-0">
       <button className={ICON_BTN} onClick={onUndo} aria-label={COPY.toolbar.undo} title={COPY.toolbar.undo}>
         <Undo2 size="1.125rem" />
       </button>

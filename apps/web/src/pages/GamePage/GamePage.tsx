@@ -73,15 +73,17 @@ export const GamePage = ({ view }: { view: RoomView }) => {
       </header>
 
       <div className="flex min-h-0 flex-1 flex-col gap-2 landscape:flex-row lg:grid lg:grid-cols-[clamp(11rem,17vw,15rem)_minmax(0,1fr)_clamp(13rem,21vw,18.75rem)] lg:gap-3">
-        <main className="flex min-w-0 flex-col gap-2 landscape:min-h-0 landscape:flex-1 lg:order-2 lg:min-h-0 lg:gap-3">
-          <div className="card shrink-0 px-3 py-1.5 short:py-0.5">
-            <WordBar view={view} />
-          </div>
-          {view.notice && (
-            <div className="card flex shrink-0 items-center gap-2 bg-sunny px-3 py-1.5 text-sm font-extrabold">
-              <AlertTriangle size="1.125rem" className="shrink-0" /> {view.notice}
+        <main className="flex min-w-0 flex-col gap-2 landscape:min-h-0 landscape:flex-1 lg:order-2 lg:min-h-0 lg:gap-3 short:landscape:grid short:landscape:grid-cols-[minmax(0,1fr)_auto] short:landscape:grid-rows-[auto_minmax(0,1fr)] short:landscape:gap-x-2">
+          <div className="contents short:landscape:col-span-full short:landscape:flex short:landscape:flex-col short:landscape:gap-2">
+            <div className="card shrink-0 px-3 py-1.5 short:py-0.5">
+              <WordBar view={view} />
             </div>
-          )}
+            {view.notice && (
+              <div className="card flex shrink-0 items-center gap-2 bg-sunny px-3 py-1.5 text-sm font-extrabold">
+                <AlertTriangle size="1.125rem" className="shrink-0" /> {view.notice}
+              </div>
+            )}
+          </div>
           <BoardFrame className="max-lg:portrait:aspect-[4/3] max-lg:portrait:w-full landscape:min-h-0 landscape:flex-1 lg:min-h-0 lg:flex-1">
             <Board canDraw={canDraw} tool={brush.tool} color={brush.color} size={brush.size} turnKey={turnKey} handleRef={boardRef} />
             <BoardOverlay view={view} remainingMs={remaining} />
