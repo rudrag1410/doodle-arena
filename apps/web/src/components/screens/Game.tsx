@@ -6,7 +6,7 @@ import { COPY } from '../../constants/copy'
 import { useBrush, useDrawingShortcuts, useLeaveRoom, useRemaining } from '../../hooks'
 import { Board, type BoardHandle } from '../board/Board'
 import { BoardFrame } from '../board/BoardFrame'
-import { Logo, Screen, TabBar } from '../common'
+import { Logo, Screen, SoundToggle, TabBar } from '../common'
 import { BoardOverlay, Chat, PlayerList, TimerRing, Toolbar, WordBar } from '../game'
 enum SidePanel {
   Chat = 'chat',
@@ -53,6 +53,7 @@ export const Game = ({ view }: { view: RoomView }) => {
           {clockOn && view.phaseDurationMs && (
             <TimerRing remainingMs={remaining} totalMs={view.phaseDurationMs} urgent={view.phase === Phase.Drawing} />
           )}
+          <SoundToggle />
           <button className="btn btn-sm btn-icon" onClick={leave} aria-label={COPY.common.leaveGame} title={COPY.common.leaveGame}>
             <LogOut size={18} />
           </button>

@@ -5,7 +5,7 @@ import { ClientEvent, MIN_PLAYERS_TO_START, type RoomView } from '@doodle/shared
 import { COPY } from '../../constants/copy'
 import { useLeaveRoom } from '../../hooks'
 import { socket } from '../../services/socket'
-import { Logo, Screen, TabBar } from '../common'
+import { Logo, Screen, SoundToggle, TabBar } from '../common'
 import { Chat } from '../game/Chat'
 import { InviteBanner } from '../lobby/InviteBanner'
 import { PlayerRoster } from '../lobby/PlayerRoster'
@@ -28,9 +28,12 @@ export const Lobby = ({ view }: { view: RoomView }) => {
     <Screen className="gap-2 p-3 sm:gap-3 lg:p-5">
       <header className="flex shrink-0 items-center justify-between">
         <Logo />
-        <button className="btn btn-sm" onClick={leave}>
-          <LogOut size={16} /> {COPY.common.leave}
-        </button>
+        <div className="flex items-center gap-2">
+          <SoundToggle />
+          <button className="btn btn-sm" onClick={leave}>
+            <LogOut size={16} /> {COPY.common.leave}
+          </button>
+        </div>
       </header>
 
       <InviteBanner roomId={view.roomId} />

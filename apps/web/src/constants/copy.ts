@@ -9,6 +9,8 @@ export const COPY = {
   common: {
     leave: 'Leave',
     leaveGame: 'Leave game',
+    soundOn: 'Mute sound',
+    soundOff: 'Unmute sound',
     backHome: 'Back to home',
     you: '(you)',
     points: 'pts',

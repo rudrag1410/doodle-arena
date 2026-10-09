@@ -16,6 +16,7 @@ One player draws a secret word, everyone else races to guess it in chat.
 - **Live drawing** — pen, colours, brush sizes, eraser, fill, undo and clear, streamed stroke by stroke.
 - **Fair play** — the server owns the word, the clock and the scores. Correct guessers can't leak the answer, and near misses get a private "close!".
 - **Resilient** — join mid-round, refresh or drop your connection and keep your seat. If the drawer leaves, the game recovers.
+- **Sound effects** — synthesised in the browser (no audio files) for guesses, turns, countdown ticks and the final result. Mute from the speaker button.
 - **Replay** — watch every drawing be redrawn stroke by stroke when the game ends.
 - **Works everywhere** — fits any screen from a phone to a desktop without scrolling.
 

@@ -11,7 +11,7 @@ import { useLeaveRoom } from '../../hooks'
 import { socket } from '../../services/socket'
 import { useGame } from '../../store'
 import { Confetti } from '../board/Confetti'
-import { Avatar, Logo, Screen, TabBar } from '../common'
+import { Avatar, Logo, Screen, SoundToggle, TabBar } from '../common'
 import { ReplayPlayer } from '../replay/ReplayPlayer'
 const PODIUM = [
   { index: 1, height: 'h-[11dvh]', tone: 'bg-[#dfe6ee]', delay: 0.35 },
@@ -40,9 +40,12 @@ export const GameEnd = ({ view }: { view: RoomView }) => {
       {youWon && <Confetti />}
       <header className="flex shrink-0 items-center justify-between">
         <Logo />
-        <button className="btn btn-sm" onClick={leave}>
-          <LogOut size={16} /> {COPY.common.leave}
-        </button>
+        <div className="flex items-center gap-2">
+          <SoundToggle />
+          <button className="btn btn-sm" onClick={leave}>
+            <LogOut size={16} /> {COPY.common.leave}
+          </button>
+        </div>
       </header>
       <TabBar tabs={TABS} value={tab} onChange={setTab} />
 
