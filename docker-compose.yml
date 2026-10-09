@@ -1,0 +1,15 @@
+services:
+  doodle:
+    build:
+      context: .
+      args:
+        VITE_TLDRAW_LICENSE_KEY: ${VITE_TLDRAW_LICENSE_KEY:-}
+    ports:
+      - "${PORT:-3001}:3001"
+    environment:
+      TRUST_PROXY: ${TRUST_PROXY:-}
+    volumes:
+      - rooms:/app/apps/server/data
+    restart: unless-stopped
+volumes:
+  rooms:

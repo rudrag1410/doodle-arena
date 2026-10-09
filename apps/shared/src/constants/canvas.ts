@@ -1,0 +1,16 @@
+export const CANVAS_W = 1200
+export const CANVAS_H = 900
+export const PAGE_ID = 'page:page'
+export const SHAPE_ID_PREFIX = 'shape:'
+export const SHAPE_ID_PATTERN = /^shape:[A-Za-z0-9_-]{4,48}$/
+export const BASE64_PATTERN = /^[A-Za-z0-9+/=]*$/
+export const BACKGROUND_SHAPE_ID = `${SHAPE_ID_PREFIX}bgfill`
+export const BACKGROUND_PADDING = 90
+export const BACKGROUND_POINT_STEP = 60
+export const DEFAULT_PRESSURE = 0.5
+export const POSITION_RANGE_FACTOR = 4
+export const MAX_ROTATION = 10
+export const MIN_SCALE = 0.05
+export const MAX_SCALE = 20
+export const MAX_SEGMENTS_PER_SHAPE = 256
+export const MAX_INDEX_LENGTH = 24
