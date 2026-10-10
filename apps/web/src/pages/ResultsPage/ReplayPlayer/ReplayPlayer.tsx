@@ -8,6 +8,7 @@ import { COPY } from '@/constants/copy'
 import { useCanvasRenderer } from '@/hooks/useCanvasRenderer'
 import { useReplayPlayer } from '@/hooks/useReplayPlayer'
 import { BoardFrame } from '@/components'
+import { ReplayTurnSelect } from '../ReplayTurnSelect'
 
 export const ReplayPlayer = ({ turns }: { turns: ReplayTurn[] }) => {
   const [index, setIndex] = useState(0)
@@ -35,18 +36,7 @@ export const ReplayPlayer = ({ turns }: { turns: ReplayTurn[] }) => {
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-2">
-      <select
-        className="input shrink-0 !py-1.5 text-base"
-        value={index}
-        onChange={(e) => setIndex(Number(e.target.value))}
-        aria-label={COPY.replay.turns}
-      >
-        {turns.map((tr, i) => (
-          <option key={`${tr.round}-${tr.drawerId}-${tr.word}`} value={i}>
-            {tr.word} — {COPY.replay.turnMeta(tr.drawerName, tr.round)}
-          </option>
-        ))}
-      </select>
+      <ReplayTurnSelect turns={turns} index={index} onChange={setIndex} />
 
       <BoardFrame className="min-h-0 flex-1">
         <div className="board h-full w-full">

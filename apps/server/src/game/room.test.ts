@@ -341,3 +341,52 @@ test('custom words are visible to the host only, everyone else gets just the cou
   assert.equal(guestView.customWordCount, TEST_WORDS.length)
   assert.ok(!JSON.stringify(guestView).includes('giraffe'))
 })
+
+const MAX_TURNS = 6
+const FIVE_WORDS = ['alpha', 'bravo', 'charlie', 'delta', 'echo']
+
+function playGame(host: Player, others: Player[]) {
+  const picked: string[] = []
+  const firstOffer: string[] = []
+
+  assert.equal(room.start(host.id), null)
+
+  for (let turn = 0; turn < MAX_TURNS && room.phase !== Phase.GameEnd; turn++) {
+    const drawer = [host, ...others].find((p) => p.id === room.drawerId)!
+    const offered = room.viewFor(drawer).wordChoices ?? []
+
+    assert.ok(offered[0])
+
+    if (turn === 0) firstOffer.push(...offered)
+
+    picked.push(offered[0])
+    assert.equal(room.pickWord(drawer.id, 0), null)
+    mock.timers.tick(DRAW_TIME_S * 1000)
+    mock.timers.tick(TURN_END_MS + 10)
+  }
+
+  assert.equal(room.phase, Phase.GameEnd)
+
+  return { picked, firstOffer }
+}
+
+test('words are not repeated from one game to the next in the same room', () => {
+  const a = bot()
+  const b = bot()
+  const pa = room.join('A', 0, a.conn) as Player
+  const pb = room.join('B', 0, b.conn) as Player
+
+  room.updateSettings(pa.id, { rounds: 1, customOnly: true, customWords: FIVE_WORDS })
+
+  const first = playGame(pa, [pb])
+
+  assert.equal(room.reset(pa.id), null)
+
+  const second = playGame(pa, [pb])
+
+  assert.equal(first.picked.length, 2)
+  assert.deepEqual(
+    second.firstOffer.filter((w) => first.picked.includes(w)),
+    [],
+  )
+})

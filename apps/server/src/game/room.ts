@@ -238,7 +238,6 @@ export class Room {
     this.players.forEach((p) => (p.score = 0))
     this.round = 1
     this.drawn.clear()
-    this.used.clear()
     this.replay = []
     this.ranking = null
     this.turnResult = null
