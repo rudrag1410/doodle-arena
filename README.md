@@ -71,17 +71,16 @@ Everything is optional. Copy `.env.example` to `.env` to change a value.
 | `GRACE_MS`                | `30000`                       | How long a disconnected player keeps their seat                  |
 | `DATA_FILE`               | `apps/server/data/rooms.json` | Snapshot used to restore rooms after a restart. Empty disables it |
 | `TRUST_PROXY`             | off                           | Set to `1` when running behind a reverse proxy                   |
-| `VITE_TLDRAW_LICENSE_KEY` |                               | tldraw licence key. Without one, tldraw shows a small badge      |
 
 ## 🧰 Stack
 
-React 19, tldraw, Vite and Tailwind 4 on the client. Node, Socket.IO and zod on the server. TypeScript throughout, in a pnpm monorepo:
+React 19, Vite and Tailwind 4 on the client, with our own canvas drawing engine. Node, Socket.IO and zod on the server. TypeScript throughout, in a pnpm monorepo. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how everything fits together:
 
 ```
 apps/
   shared/   Types, enums and constants used by both sides
   server/   Game server: rooms, scoring, validation, Socket.IO
-  web/      React app: screens, tldraw board, stores, hooks
+  web/      React app: pages, canvas engine, stores, hooks
 ```
 
 ## 🛠 Scripts

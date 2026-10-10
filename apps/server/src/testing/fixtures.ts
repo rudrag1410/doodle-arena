@@ -1,41 +1,13 @@
-import {
-  DashStyle,
-  FillStyle,
-  PAGE_ID,
-  PaletteColor,
-  RecordTypeName,
-  SegmentType,
-  ShapeKind,
-  BrushSize,
-  ServerEvent,
-  SHAPE_ID_PREFIX,
-  type ChatMessage,
-  type RoomView,
-  type ShapeRecord,
-} from '@doodle/shared'
+import { BrushSize, ItemKind, PaletteColor, ServerEvent, type CanvasItem, type ChatMessage, type RoomView } from '@doodle/shared'
 import type { Conn, Player } from '../game/types'
 
-export const stroke = (id: string, path = 'AAAA', extra: Record<string, unknown> = {}): ShapeRecord => ({
-  id: `${SHAPE_ID_PREFIX}${id}`,
-  typeName: RecordTypeName.Shape,
-  type: ShapeKind.Draw,
-  x: 10,
-  y: 20,
-  rotation: 0,
-  index: 'a1',
-  parentId: PAGE_ID,
-  isLocked: false,
-  opacity: 1,
-  meta: {},
-  props: {
-    color: PaletteColor.Red,
-    size: BrushSize.Medium,
-    fill: FillStyle.None,
-    dash: DashStyle.Draw,
-    scale: 1,
-    segments: [{ type: SegmentType.Free, path }],
-    ...extra,
-  },
+export const stroke = (id: string, coords = 4, extra: Partial<CanvasItem> = {}): CanvasItem => ({
+  id,
+  kind: ItemKind.Pen,
+  color: PaletteColor.Red,
+  size: BrushSize.Medium,
+  points: Array.from({ length: coords }, (_, i) => 10 + i * 3),
+  ...extra,
 })
 
 export interface TestBot {

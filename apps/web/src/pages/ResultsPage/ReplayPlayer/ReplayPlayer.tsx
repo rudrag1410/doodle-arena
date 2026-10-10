@@ -1,34 +1,31 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Download, Pause, Play, RotateCcw } from 'lucide-react'
 import { clamp, kebabCase } from 'lodash-es'
-import { TldrawEditor, type TLShapeId } from 'tldraw'
 import type { ReplayTurn } from '@doodle/shared'
 
-import { SHAPE_UTILS, TOOLS } from '@/utils/tldraw'
-import { BOARD_MAX_PAGES, REPLAY_EXPORT, REPLAY_PNG_PREFIX, REPLAY_SPEEDS, REPLAY_URL_REVOKE_MS } from '@/constants/board'
+import { REPLAY_PNG_PREFIX, REPLAY_SPEEDS, REPLAY_URL_REVOKE_MS } from '@/constants/board'
 import { COPY } from '@/constants/copy'
-import { TldrawToolId } from '@/enums'
+import { useCanvasRenderer } from '@/hooks/useCanvasRenderer'
 import { useReplayPlayer } from '@/hooks/useReplayPlayer'
 import { BoardFrame } from '@/components'
-
-const LICENSE_KEY = import.meta.env.VITE_TLDRAW_LICENSE_KEY
 
 export const ReplayPlayer = ({ turns }: { turns: ReplayTurn[] }) => {
   const [index, setIndex] = useState(0)
   const turn = turns[clamp(index, 0, turns.length - 1)]
-  const { editor, onMount, t, total, playing, speed, setSpeed, restart, togglePlay, scrub } = useReplayPlayer(turn)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const renderer = useCanvasRenderer(canvasRef)
+  const { t, total, playing, speed, setSpeed, restart, togglePlay, scrub } = useReplayPlayer(turn, renderer)
 
   const savePng = async () => {
-    if (!editor || !turn) return
+    if (!renderer || !turn) return
 
-    const ids = [...editor.getCurrentPageShapeIds()] as TLShapeId[]
-    const res = await editor.toImage(ids, { format: 'png', background: true, ...REPLAY_EXPORT }).catch(() => null)
+    const blob = await renderer.toBlob()
 
-    if (!res) return
+    if (!blob) return
 
     const a = document.createElement('a')
 
-    a.href = URL.createObjectURL(res.blob)
+    a.href = URL.createObjectURL(blob)
     a.download = `${REPLAY_PNG_PREFIX}${kebabCase(turn.word)}.png`
     a.click()
     setTimeout(() => URL.revokeObjectURL(a.href), REPLAY_URL_REVOKE_MS)
@@ -53,15 +50,7 @@ export const ReplayPlayer = ({ turns }: { turns: ReplayTurn[] }) => {
 
       <BoardFrame className="min-h-0 flex-1">
         <div className="board h-full w-full">
-          <TldrawEditor
-            shapeUtils={SHAPE_UTILS}
-            tools={TOOLS}
-            initialState={TldrawToolId.Select}
-            onMount={onMount}
-            autoFocus={false}
-            options={{ maxPages: BOARD_MAX_PAGES }}
-            licenseKey={LICENSE_KEY}
-          />
+          <canvas ref={canvasRef} aria-label={COPY.replay.boardLabel} />
         </div>
         <div className="pointer-events-none absolute top-2 left-2 rounded-full border-2 border-ink bg-cream px-3 py-0.5 font-display text-sm font-semibold">
           {COPY.replay.drew(turn.drawerName, turn.word)}

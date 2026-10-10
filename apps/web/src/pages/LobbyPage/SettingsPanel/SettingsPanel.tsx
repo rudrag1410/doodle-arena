@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { xor } from 'lodash-es'
 import { useDebounceCallback } from 'usehooks-ts'
 import clsx from 'clsx'
@@ -9,13 +9,21 @@ import { SETTINGS_DEBOUNCE_MS } from '@/constants/timing'
 import { RangeField } from '../RangeField'
 import { sendSettings, parseWords } from '@/utils/settings'
 
-export const SettingsPanel = ({ settings, editable }: { settings: RoomSettings; editable: boolean }) => {
-  const [words, setWords] = useState(settings.customWords.join(', '))
+interface Props {
+  settings: RoomSettings
+  customWordCount: number
+  editable: boolean
+}
+
+export const SettingsPanel = ({ settings, customWordCount, editable }: Props) => {
+  const serverWords = settings.customWords.join(', ')
+  const [words, setWords] = useState(serverWords)
+  const wordsInput = useRef<HTMLTextAreaElement>(null)
   const commitWords = useDebounceCallback((text: string) => sendSettings({ customWords: parseWords(text) }), SETTINGS_DEBOUNCE_MS * 2)
 
   useEffect(() => {
-    if (!commitWords.isPending()) setWords(settings.customWords.join(', '))
-  }, [settings.customWords, commitWords])
+    if (document.activeElement !== wordsInput.current) setWords(serverWords)
+  }, [serverWords])
 
   const { rounds, drawTime } = SETTING_BOUNDS
 
@@ -64,10 +72,11 @@ export const SettingsPanel = ({ settings, editable }: { settings: RoomSettings; 
           <label className="label" htmlFor="custom">
             {COPY.lobby.customWords}
           </label>
-          <span className="text-xs font-bold text-ink-soft">{COPY.lobby.customSaved(settings.customWords.length)}</span>
+          <span className="text-xs font-bold text-ink-soft">{COPY.lobby.customSaved(customWordCount)}</span>
         </div>
         <textarea
           id="custom"
+          ref={wordsInput}
           className={clsx('input mt-1 min-h-12 flex-1 resize-none !py-2 text-sm sm:text-base')}
           placeholder={COPY.lobby.customPlaceholder}
           value={words}
@@ -82,7 +91,7 @@ export const SettingsPanel = ({ settings, editable }: { settings: RoomSettings; 
             type="checkbox"
             className="size-5 accent-tomato"
             checked={settings.customOnly}
-            disabled={settings.customWords.length < MIN_CUSTOM_WORDS_ONLY}
+            disabled={customWordCount < MIN_CUSTOM_WORDS_ONLY}
             onChange={(e) => sendSettings({ customOnly: e.target.checked })}
           />
           {COPY.lobby.customOnly} <span className="text-xs font-semibold text-ink-soft">{COPY.lobby.customOnlyNeeds}</span>

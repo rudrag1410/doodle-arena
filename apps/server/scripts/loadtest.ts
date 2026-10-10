@@ -25,6 +25,17 @@ enum WorkerMessage {
   Result = 'result',
 }
 
+const sentAt = new Map<string, { t: number; left: number }>()
+
+const takeSentAt = (key: string): number | undefined => {
+  const entry = sentAt.get(key)
+
+  if (!entry) return undefined
+  if (--entry.left <= 0) sentAt.delete(key)
+
+  return entry.t
+}
+
 const LOAD = {
   defaults: { rooms: 100, players: 5, seconds: 20, procs: 2 },
   rampMs: 25,
@@ -44,7 +55,7 @@ const LOAD = {
   portBase: 4100,
   portSpread: 800,
   maxRooms: '100000',
-  strokeIdPrefix: 'shape:lt',
+  strokeIdPrefix: 'lt',
   serverBuild: '../dist/index.js',
   tailWindowPadding: 4,
   minWindow: 3,
@@ -91,13 +102,8 @@ async function worker() {
       g.onOps = (p) => {
         received++
 
-        const t = (
-          p.puts[0]?.meta as
-            | {
-                t?: number
-              }
-            | undefined
-        )?.t
+        const put = p.puts[0]
+        const t = put && takeSentAt(`${put.id}:${put.points.length}`)
 
         if (t && latencies.length < LOAD.maxLatencySamples) latencies.push(Date.now() - t)
       }
@@ -134,7 +140,7 @@ async function worker() {
       for (let pts = start; pts <= maxPts && Date.now() < end; pts += step) {
         const rec = fakeStrokeWithId(id, pts)
 
-        rec.meta = { t: Date.now() }
+        sentAt.set(`${rec.id}:${rec.points.length}`, { t: Date.now(), left: viewers.length })
         drawer.socket.emit(ClientEvent.CanvasOps, { puts: [rec], removes: [] })
         sent++
         await sleep(LOAD.updateIntervalMs)

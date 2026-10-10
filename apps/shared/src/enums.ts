@@ -77,31 +77,10 @@ export enum TransportKind {
   WebSocket = 'websocket',
 }
 
-export enum RecordTypeName {
-  Shape = 'shape',
-}
-
-export enum ShapeKind {
-  Draw = 'draw',
-}
-
-export enum SegmentType {
-  Free = 'free',
-  Straight = 'straight',
-}
-
-export enum FillStyle {
-  None = 'none',
-  Semi = 'semi',
-  Solid = 'solid',
+export enum ItemKind {
+  Pen = 'pen',
+  Eraser = 'eraser',
   Fill = 'fill',
-}
-
-export enum DashStyle {
-  Draw = 'draw',
-  Solid = 'solid',
-  Dashed = 'dashed',
-  Dotted = 'dotted',
 }
 
 export enum BrushSize {

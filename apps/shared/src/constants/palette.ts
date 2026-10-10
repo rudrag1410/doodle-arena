@@ -25,11 +25,12 @@ export const DEFAULT_COLOR = PaletteColor.Black
 export const BRUSH_SIZES: readonly {
   id: BrushSize
   dot: number
+  width: number
 }[] = [
-  { id: BrushSize.Small, dot: 6 },
-  { id: BrushSize.Medium, dot: 11 },
-  { id: BrushSize.Large, dot: 17 },
-  { id: BrushSize.ExtraLarge, dot: 24 },
+  { id: BrushSize.Small, dot: 6, width: 4 },
+  { id: BrushSize.Medium, dot: 11, width: 9 },
+  { id: BrushSize.Large, dot: 17, width: 18 },
+  { id: BrushSize.ExtraLarge, dot: 24, width: 32 },
 ]
 
 export const SIZE_IDS: readonly string[] = BRUSH_SIZES.map((s) => s.id)

@@ -11,8 +11,6 @@ COPY apps/server/package.json apps/server/
 COPY apps/web/package.json apps/web/
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 COPY apps apps
-ARG VITE_TLDRAW_LICENSE_KEY=
-ENV VITE_TLDRAW_LICENSE_KEY=$VITE_TLDRAW_LICENSE_KEY
 RUN pnpm build
 
 FROM base AS deps

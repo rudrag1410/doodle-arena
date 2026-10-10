@@ -236,7 +236,7 @@ function handleConnection(socket: GameSocket, { registry, stats, ipGate, trustPr
       (p) => {
         if (!room || !playerId) return
 
-        const r = room.canvasFull(playerId, p?.shapes as never)
+        const r = room.canvasFull(playerId, p?.items as never)
 
         if (!r.ok) rejectCanvas(r.reason, r.message)
       },

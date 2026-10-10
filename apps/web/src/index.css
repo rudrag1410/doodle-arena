@@ -241,20 +241,24 @@ h3,
   }
 }
 
-.board .tl-container {
-  background: transparent !important;
+.board,
+.board canvas {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
-.board .tl-background {
-  background: #ffffff !important;
-}
-.board .tlui-layout {
-  display: none;
-}
-.board .tl-canvas {
+.board canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
   touch-action: none;
+  background: #ffffff;
 }
-.board.cursor-pen .tl-canvas {
+.board.cursor-pen canvas {
   cursor: crosshair;
+}
+.board.cursor-fill canvas {
+  cursor: cell;
 }
 
 .no-scrollbar {

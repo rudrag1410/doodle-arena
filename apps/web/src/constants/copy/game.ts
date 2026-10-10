@@ -12,7 +12,7 @@ export const GAME_COPY = {
     wordWas: 'The word was',
     pickingWord: 'Picking a word…',
     hintLabel: (n: number) => `Hint: ${n} characters`,
-    fillAria: 'Fill tool',
+    boardLabel: 'Drawing board',
   },
   toolbar: {
     label: 'Drawing tools',

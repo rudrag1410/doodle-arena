@@ -11,6 +11,7 @@ export const RESULTS_COPY = {
     loadingReplay: 'Loading replays…',
   },
   replay: {
+    boardLabel: 'Replay of the drawing',
     none: 'Nobody drew anything this game — no replays to show.',
     turns: 'Turns',
     drew: (name: string, word: string) => `${name} drew “${word}”`,

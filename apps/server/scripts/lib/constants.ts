@@ -3,9 +3,9 @@ import { EnvVar } from '../../src/config/envVars'
 export const DEFAULT_SERVER_URL = 'http://localhost:8080'
 export const BOT_AVATAR = 1
 export const BOT_STROKE_DEFAULT_POINTS = 8
-export const PATH_FIRST_POINT_BYTES = 12
-export const PATH_POINT_BYTES = 6
-export const PATH_FILL_BYTE = 7
+export const FAKE_STROKE_ORIGIN = 100
+export const FAKE_STROKE_STEP = 7
+export const FAKE_STROKE_WOBBLE = 20
 export const STROKE_ID_PREFIX = 'bot'
 export const BOT_WAIT_POLL_MS = 10
 export const BOT_WAIT_DEFAULT_MS = 5000

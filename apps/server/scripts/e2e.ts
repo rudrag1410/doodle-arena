@@ -1,11 +1,11 @@
 import { spawn } from 'node:child_process'
 import assert from 'node:assert/strict'
 import { setTimeout as sleep } from 'node:timers/promises'
-import { CanvasRejectReason, ChatKind, ClientEvent, Phase, type ReplayTurn } from '@doodle/shared'
+import { CanvasRejectReason, ChatKind, ClientEvent, Phase, type ReplayTurn, type RoomSettings } from '@doodle/shared'
 import { EnvVar } from '../src/config/envVars'
 import { Bot } from './lib/bot'
 import { NODE_TSX_ARGS, SERVER_ENTRY_SOURCE, SERVER_READY_MARKER, fastServerEnv } from './lib/constants'
-import { fakeStroke, strokeRecord } from './lib/strokes'
+import { fakeStroke } from './lib/strokes'
 
 const E2E = {
   portBase: 3900,
@@ -16,9 +16,8 @@ const E2E = {
   settle: 100,
   longSettle: 150,
   unknownRoom: 'ZZZZZZ',
-  game: { rounds: 1, drawTime: 30 },
-  hugePathChars: 60000,
-  forbiddenShapeType: 'embed',
+  hugeStrokePoints: 3500,
+  forbiddenKind: 'embed',
   floodMessages: 40,
   maxDeliveredOfFlood: 8,
   oversizedChars: 2000000,
@@ -26,8 +25,11 @@ const E2E = {
   phaseWaitMs: 3000,
   endWaitMs: 8000,
   playLoops: 40,
+  canvasFlood: 250,
+  oversizedResync: 700,
 } as const
 
+const GAME_SETTINGS: Partial<RoomSettings> = { rounds: 1, drawTime: 30, customWords: ['elephant', 'giraffe', 'penguin'], customOnly: true }
 const PORT = E2E.portBase + Math.floor(Math.random() * E2E.portSpread)
 const URL = `http://localhost:${PORT}`
 
@@ -54,7 +56,7 @@ async function main() {
   const b = new Bot('Ben', URL)
   const c = new Bot('Cy', URL)
   const bots = [a, b, c]
-  const created = await a.create(E2E.game)
+  const created = await a.create(GAME_SETTINGS)
 
   assert.ok(created.ok, JSON.stringify(created))
   ok('room created, shareable code returned: ' + a.roomId)
@@ -101,17 +103,17 @@ async function main() {
   assert.equal(drawer.ops.length + g2.ops.length, 0)
   ok('a non-drawer cannot draw')
 
-  const evil = { ...fakeStroke(4), type: E2E.forbiddenShapeType }
+  const evil = { ...fakeStroke(4), kind: E2E.forbiddenKind }
 
-  drawer.socket.emit(ClientEvent.CanvasOps, { puts: [evil], removes: [] })
+  drawer.socket.emit(ClientEvent.CanvasOps, { puts: [evil as never], removes: [] })
 
-  const huge = strokeRecord(fakeStroke(4).id, 'A'.repeat(E2E.hugePathChars))
+  const huge = fakeStroke(E2E.hugeStrokePoints)
 
   drawer.socket.emit(ClientEvent.CanvasOps, { puts: [huge], removes: [] })
   await sleep(E2E.longSettle)
   assert.deepEqual(drawer.rejects.slice(-2), [CanvasRejectReason.Invalid, CanvasRejectReason.TooLarge])
   assert.equal(g1.ops.length, 0)
-  ok('forbidden shape types and oversized strokes are rejected')
+  ok('forbidden stroke kinds and oversized strokes are rejected')
 
   const stroke = fakeStroke(30)
 
@@ -126,7 +128,7 @@ async function main() {
 
   assert.ok((await late.join(a.roomId)).ok)
   await sleep(E2E.longSettle)
-  assert.equal(late.full?.shapes.length, 1)
+  assert.equal(late.full?.items.length, 1)
   assert.equal(late.view!.word, null)
   ok('mid-round joiner receives the current canvas')
   g1.say(word.slice(0, -1) + (word.endsWith('x') ? 'y' : 'x'))
@@ -233,6 +235,77 @@ async function main() {
   assert.ok((await Promise.race([closed, sleep(E2E.disconnectWaitMs).then(() => 'timeout')])) !== 'timeout')
   ok('a message over the 1 MB transport cap disconnects the sender')
   bots.concat([late, g1b, spam]).forEach((x) => x.close())
+  await canvasScenarios()
+}
+
+async function canvasScenarios() {
+  const dee = new Bot('Dee', URL)
+  const eli = new Bot('Eli', URL)
+  const fay = new Bot('Fay', URL)
+  const crew = [dee, eli, fay]
+
+  assert.ok((await dee.create(GAME_SETTINGS)).ok)
+  assert.ok((await eli.join(dee.roomId)).ok)
+  assert.ok((await fay.join(dee.roomId)).ok)
+  dee.socket.emit(ClientEvent.GameStart)
+  await dee.waitFor((v) => v.phase === Phase.Choosing, E2E.phaseWaitMs, 'choosing')
+
+  const drawer = crew.find((x) => x.isDrawer)!
+  const viewers = crew.filter((x) => x !== drawer)
+
+  drawer.socket.emit(ClientEvent.TurnPick, 0)
+  await drawer.waitFor((v) => v.phase === Phase.Drawing, E2E.phaseWaitMs, 'drawing')
+
+  const strokes = [fakeStroke(10), fakeStroke(20), fakeStroke(30)]
+
+  for (const s of strokes) {
+    drawer.socket.emit(ClientEvent.CanvasOps, { puts: [s], removes: [] })
+    await sleep(E2E.settle)
+  }
+
+  drawer.socket.emit(ClientEvent.CanvasOps, { puts: [], removes: [strokes[2]!.id] })
+  await sleep(E2E.longSettle)
+
+  const [watcher] = viewers
+
+  assert.deepEqual(watcher!.ops.at(-1)?.removes, [strokes[2]!.id])
+  ok('undo (a removal) is relayed to viewers')
+
+  const creds = { playerId: drawer.playerId, token: drawer.token }
+
+  drawer.close()
+  await sleep(E2E.settle)
+
+  const back = new Bot(drawer.name, URL)
+
+  assert.ok((await back.join(drawer.roomId, creds)).ok)
+  await sleep(E2E.longSettle)
+  assert.equal(back.full?.items.length, 2)
+  assert.ok(back.isDrawer)
+  ok('a drawer who reconnects within the grace period keeps the turn and gets the canvas back')
+
+  const kept = back.full!.items
+  const extra = fakeStroke(12)
+
+  back.socket.emit(ClientEvent.CanvasFull, { items: [...kept, extra] })
+  await sleep(E2E.longSettle)
+  assert.equal(watcher!.full?.items.length, 3)
+  ok('a drawer resync (canvas:full) replaces the canvas for everyone else')
+
+  for (let i = 0; i < E2E.canvasFlood; i++) back.socket.emit(ClientEvent.CanvasOps, { puts: [fakeStroke(4)], removes: [] })
+
+  await sleep(E2E.longSettle * 2)
+  assert.ok(back.rejects.includes(CanvasRejectReason.Rate))
+  ok(`a canvas flood is rate-limited (${back.rejects.filter((r) => r === CanvasRejectReason.Rate).length} rejected)`)
+
+  const oversized = Array.from({ length: E2E.oversizedResync }, () => fakeStroke(4))
+
+  back.socket.emit(ClientEvent.CanvasFull, { items: oversized })
+  await sleep(E2E.longSettle)
+  assert.ok(back.rejects.includes(CanvasRejectReason.TooLarge))
+  ok('an oversized canvas resync is rejected')
+
+  ;[...crew, back].forEach((x) => x.close())
 }
 
 try {

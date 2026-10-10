@@ -1,9 +1,9 @@
-import type { ShapeRecord } from './canvas'
+import type { CanvasItem } from './canvas'
 
 export interface ReplayEvent {
   t: number
   d?: number
-  puts?: ShapeRecord[]
+  puts?: CanvasItem[]
   removes?: string[]
 }
 

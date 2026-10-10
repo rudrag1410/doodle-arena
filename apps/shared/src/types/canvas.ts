@@ -1,10 +1,15 @@
-export type ShapeRecord = {
+import type { BrushSize, ItemKind, PaletteColor } from '../enums'
+
+export interface CanvasItem {
   id: string
-  [key: string]: unknown
+  kind: ItemKind
+  color: PaletteColor
+  size: BrushSize
+  points: number[]
 }
 
 export interface CanvasOps {
-  puts: ShapeRecord[]
+  puts: CanvasItem[]
   removes: string[]
 }
 
@@ -14,5 +19,5 @@ export interface CanvasOpsBroadcast extends CanvasOps {
 
 export interface CanvasFull {
   seq: number
-  shapes: ShapeRecord[]
+  items: CanvasItem[]
 }

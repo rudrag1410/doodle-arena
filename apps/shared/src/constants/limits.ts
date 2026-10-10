@@ -7,7 +7,7 @@ export const LIMITS = {
   customWordsInputLen: 4000,
   recordBytes: 48000,
   opsPerMessage: 8,
-  canvasShapes: 600,
+  canvasItems: 600,
   canvasBytes: 900000,
   replayEventsPerTurn: 4000,
 } as const

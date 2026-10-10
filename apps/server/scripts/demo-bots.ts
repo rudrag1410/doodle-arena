@@ -1,11 +1,10 @@
 import { setTimeout as sleep } from 'node:timers/promises'
 import { random, shuffle } from 'lodash-es'
-import { b64Vecs } from '@tldraw/tlschema'
-import { ClientEvent, DEFAULT_PRESSURE, Phase, SHAPE_ID_PREFIX } from '@doodle/shared'
+import { ClientEvent, Phase } from '@doodle/shared'
 import { Bot } from './lib/bot'
 import { DEFAULT_SERVER_URL } from './lib/constants'
 import { BOT_NAMES, DOODLES, DOODLE_WORDS, FALLBACK_DOODLE, type Doodle } from './lib/doodles'
-import { strokeRecord } from './lib/strokes'
+import { strokeItem } from './lib/strokes'
 
 const DEMO = {
   defaultBots: 3,
@@ -34,26 +33,16 @@ const between = ([lo, hi]: readonly [number, number]) => random(lo, hi, true)
 let counter = 0
 
 async function drawStroke(bot: Bot, s: Doodle) {
-  const id = `${SHAPE_ID_PREFIX}demo${(counter++).toString(36).padStart(5, '0')}${random(36 ** 4).toString(36)}`
-  const [ox, oy] = s.pts[0]
-  const rel = s.pts.map(([x, y]) => ({ x: x - ox, y: y - oy, z: DEFAULT_PRESSURE }))
+  const id = `demo${(counter++).toString(36).padStart(5, '0')}${random(36 ** 4).toString(36)}`
+  const coords = s.pts.flat()
 
-  for (let n = DEMO.pointsPerFrame; n <= rel.length + DEMO.pointsPerFrame; n += DEMO.pointsPerFrame) {
-    const upto = Math.min(n, rel.length)
-    const done = upto === rel.length
+  for (let n = DEMO.pointsPerFrame; n <= s.pts.length + DEMO.pointsPerFrame; n += DEMO.pointsPerFrame) {
+    const upto = Math.min(n, s.pts.length)
 
-    const record = strokeRecord(id, b64Vecs.encodePoints(rel.slice(0, upto)), { color: s.color, size: s.size }, { x: ox, y: oy })
-
-    ;(
-      record.props as {
-        isComplete: boolean
-      }
-    ).isComplete = done
-
-    bot.socket.emit(ClientEvent.CanvasOps, { puts: [record], removes: [] })
+    bot.socket.emit(ClientEvent.CanvasOps, { puts: [strokeItem(id, coords.slice(0, upto * 2), { color: s.color, size: s.size })], removes: [] })
     await sleep(DEMO.frameMs)
 
-    if (done) break
+    if (upto === s.pts.length) break
   }
 }
 

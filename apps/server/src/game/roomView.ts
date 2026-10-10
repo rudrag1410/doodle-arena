@@ -49,7 +49,8 @@ export const buildRoomView = (s: ViewSource, viewer: Player): RoomView => {
   return {
     roomId: s.id,
     phase: s.phase,
-    settings: s.settings,
+    settings: viewer.id === s.hostId ? s.settings : { ...s.settings, customWords: [] },
+    customWordCount: s.settings.customWords.length,
     hostId: s.hostId,
     youId: viewer.id,
     players: [...s.players.values()].map(toPublicPlayer),

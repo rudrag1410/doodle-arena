@@ -1,24 +1,24 @@
-import { ServerEvent, type CanvasFull, type CanvasOpsBroadcast, type CanvasRejectReason, type ShapeRecord } from '@doodle/shared'
+import { ServerEvent, type CanvasFull, type CanvasOpsBroadcast, type CanvasRejectReason, type CanvasItem } from '@doodle/shared'
 
 import { socket } from './socket'
 
 interface CanvasListener {
-  full: (shapes: ShapeRecord[]) => void
-  ops: (puts: ShapeRecord[], removes: string[]) => void
+  full: (items: CanvasItem[]) => void
+  ops: (puts: CanvasItem[], removes: string[]) => void
   reject: (reason: CanvasRejectReason, message: string) => void
 }
 
 class CanvasBus {
-  readonly mirror = new Map<string, ShapeRecord>()
+  readonly mirror = new Map<string, CanvasItem>()
   seq = 0
   private listeners = new Set<CanvasListener>()
 
   constructor() {
     socket.on(ServerEvent.CanvasFull, (p: CanvasFull) => {
       this.mirror.clear()
-      p.shapes.forEach((s) => this.mirror.set(s.id, s))
+      p.items.forEach((s) => this.mirror.set(s.id, s))
       this.seq = p.seq
-      this.listeners.forEach((l) => l.full(p.shapes))
+      this.listeners.forEach((l) => l.full(p.items))
     })
 
     socket.on(ServerEvent.CanvasOps, (p: CanvasOpsBroadcast) => {
@@ -37,7 +37,7 @@ class CanvasBus {
     return () => this.listeners.delete(l)
   }
 
-  snapshot(): ShapeRecord[] {
+  snapshot(): CanvasItem[] {
     return [...this.mirror.values()]
   }
 

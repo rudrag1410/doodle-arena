@@ -1,5 +1,5 @@
 import type { CanvasRejectReason, ClientEvent, JoinErrorCode, ServerEvent, ToastKind } from '../enums'
-import type { CanvasFull, CanvasOps, CanvasOpsBroadcast, ShapeRecord } from './canvas'
+import type { CanvasFull, CanvasOps, CanvasOpsBroadcast, CanvasItem } from './canvas'
 import type { ChatMessage } from './chat'
 import type { ReplayTurn } from './replay'
 import type { RoomSettings, RoomView } from './room'
@@ -40,7 +40,7 @@ export interface ClientToServerEvents {
   [ClientEvent.GameReset]: () => void
   [ClientEvent.TurnPick]: (index: number) => void
   [ClientEvent.CanvasOps]: (p: CanvasOps) => void
-  [ClientEvent.CanvasFull]: (p: { shapes: ShapeRecord[] }) => void
+  [ClientEvent.CanvasFull]: (p: { items: CanvasItem[] }) => void
   [ClientEvent.Chat]: (text: string) => void
   [ClientEvent.TimeSync]: (ack: (serverNow: number) => void) => void
 }

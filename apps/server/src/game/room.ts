@@ -18,7 +18,7 @@ import {
   type ReplayTurn,
   type RoomSettings,
   type RoomView,
-  type ShapeRecord,
+  type CanvasItem,
   type TurnResult,
 } from '@doodle/shared'
 import { CanvasStore } from '../canvas/canvasStore'
@@ -215,7 +215,7 @@ export class Room {
   private syncNewcomer(p: Player) {
     if (!p.conn) return
 
-    p.conn.send(ServerEvent.CanvasFull, { seq: this.canvas.seq, shapes: this.canvas.snapshot() })
+    p.conn.send(ServerEvent.CanvasFull, { seq: this.canvas.seq, items: this.canvas.snapshot() })
 
     if (this.phase === Phase.GameEnd) p.conn.send(ServerEvent.Replay, this.replay)
   }
@@ -512,7 +512,7 @@ export class Room {
 
   private resetCanvas() {
     this.canvas.reset()
-    this.broadcast((c) => c.send(ServerEvent.CanvasFull, { seq: 0, shapes: [] }))
+    this.broadcast((c) => c.send(ServerEvent.CanvasFull, { seq: 0, items: [] }))
   }
 
   private canDraw(by: string) {
@@ -526,7 +526,7 @@ export class Room {
       !Array.isArray(ops?.puts) ||
       !Array.isArray(ops?.removes) ||
       ops.puts.length > LIMITS.opsPerMessage ||
-      ops.removes.length > LIMITS.canvasShapes
+      ops.removes.length > LIMITS.canvasItems
     ) {
       return { ok: false, reason: CanvasRejectReason.TooLarge, message: ERROR_MESSAGES.tooManyOps }
     }
@@ -542,18 +542,18 @@ export class Room {
     return { ok: true }
   }
 
-  canvasFull(by: string, shapes: ShapeRecord[]): CanvasResult {
+  canvasFull(by: string, items: CanvasItem[]): CanvasResult {
     if (!this.canDraw(by)) return { ok: false, reason: CanvasRejectReason.NotDrawer, message: ERROR_MESSAGES.notDrawing }
 
-    if (!Array.isArray(shapes) || shapes.length > LIMITS.canvasShapes) {
-      return { ok: false, reason: CanvasRejectReason.TooLarge, message: ERROR_MESSAGES.tooManyShapes }
+    if (!Array.isArray(items) || items.length > LIMITS.canvasItems) {
+      return { ok: false, reason: CanvasRejectReason.TooLarge, message: ERROR_MESSAGES.tooManyItems }
     }
 
-    const r = this.canvas.replaceAll(shapes)
+    const r = this.canvas.replaceAll(items)
 
     if (!r.ok) return r
 
-    this.broadcast((c) => c.send(ServerEvent.CanvasFull, { seq: this.canvas.seq, shapes: this.canvas.snapshot() }), by)
+    this.broadcast((c) => c.send(ServerEvent.CanvasFull, { seq: this.canvas.seq, items: this.canvas.snapshot() }), by)
 
     return { ok: true }
   }

@@ -44,7 +44,7 @@ export const LobbyPage = ({ view }: { view: RoomView }) => {
 
         <section className={clsx('card flex min-h-0 flex-col p-3 sm:p-4', tab !== LobbyTab.Settings && 'max-lg:hidden')}>
           <h2 className="mb-2 shrink-0 text-xl font-bold sm:text-2xl">{COPY.lobby.settings}</h2>
-          <SettingsPanel settings={view.settings} editable={isHost} />
+          <SettingsPanel settings={view.settings} customWordCount={view.customWordCount} editable={isHost} />
           <div className="mt-3 shrink-0">
             {isHost ? (
               <>

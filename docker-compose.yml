@@ -2,8 +2,6 @@ services:
   doodle:
     build:
       context: .
-      args:
-        VITE_TLDRAW_LICENSE_KEY: ${VITE_TLDRAW_LICENSE_KEY:-}
     ports:
       - '${PORT:-8080}:8080'
     environment:

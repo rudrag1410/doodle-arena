@@ -12,7 +12,7 @@ export const ERROR_MESSAGES = {
   invalidChoice: 'Invalid choice',
   notDrawing: 'You are not drawing right now',
   tooManyOps: 'Too many operations in one message',
-  tooManyShapes: 'Too many shapes',
+  tooManyItems: 'Too many strokes',
   slowDown: 'Slow down a little!',
   drawingTooFast: 'Drawing too fast',
   resyncTooOften: 'Resyncing too often',

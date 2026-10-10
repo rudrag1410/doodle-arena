@@ -1,31 +1,18 @@
-import { ceil, clamp, sumBy } from 'lodash-es'
-import { b64Vecs } from 'tldraw'
-import { ShapeKind, type ReplayEvent, type SegmentType, type ShapeRecord } from '@doodle/shared'
+import { clamp } from 'lodash-es'
+import { ItemKind, type CanvasItem, type ReplayEvent } from '@doodle/shared'
 
 import { STROKE_REPLAY } from '@/constants/timing'
 
 interface TimelineEvent {
   ct: number
   cd: number
-  puts: ShapeRecord[]
+  puts: CanvasItem[]
   removes: string[]
 }
 
-type Segment = {
-  type: SegmentType
-  path: string
-  dim?: 2 | 3
-}
+const MIN_POINTS = 1
 
-const isStroke = (r: ShapeRecord) =>
-  r.type === ShapeKind.Draw &&
-  (
-    r.props as
-      | {
-          isComplete?: boolean
-        }
-      | undefined
-  )?.isComplete !== undefined
+const isStroke = (item: CanvasItem) => item.kind !== ItemKind.Fill
 
 export function buildTimeline(events: ReplayEvent[]): {
   timeline: TimelineEvent[]
@@ -49,32 +36,15 @@ export function buildTimeline(events: ReplayEvent[]): {
   return { timeline, total: cursor + tailMs }
 }
 
-function partialStroke(rec: ShapeRecord, frac: number): ShapeRecord {
-  const props = rec.props as {
-    segments: Segment[]
-  }
+const partialItem = (item: CanvasItem, fraction: number): CanvasItem => {
+  const pairs = item.points.length / 2
+  const keep = Math.max(MIN_POINTS, Math.ceil(pairs * fraction))
 
-  const decoded = props.segments.map((s) => b64Vecs.decodePoints(s.path, s.dim))
-  const total = sumBy(decoded, 'length')
-  const MIN_POINTS = 2
-  let keep = Math.max(MIN_POINTS, ceil(total * frac))
-  const segments: Segment[] = []
-
-  props.segments.forEach((seg, i) => {
-    if (keep <= 0) return
-
-    const pts = decoded[i]?.slice(0, keep) ?? []
-
-    keep -= pts.length
-
-    if (pts.length) segments.push({ ...seg, path: b64Vecs.encodePoints(pts, seg.dim) })
-  })
-
-  return { ...rec, props: { ...(rec.props as object), segments, isComplete: false, isClosed: false } } as ShapeRecord
+  return { ...item, points: item.points.slice(0, keep * 2) }
 }
 
-export function shapesAt(timeline: TimelineEvent[], t: number): Map<string, ShapeRecord> {
-  const out = new Map<string, ShapeRecord>()
+export function itemsAt(timeline: TimelineEvent[], t: number): CanvasItem[] {
+  const out = new Map<string, CanvasItem>()
 
   for (const ev of timeline) {
     if (ev.ct > t) break
@@ -83,8 +53,8 @@ export function shapesAt(timeline: TimelineEvent[], t: number): Map<string, Shap
 
     const running = ev.cd > 0 && t < ev.ct + ev.cd
 
-    for (const rec of ev.puts) out.set(rec.id, running ? partialStroke(rec, (t - ev.ct) / ev.cd) : rec)
+    for (const item of ev.puts) out.set(item.id, running && isStroke(item) ? partialItem(item, (t - ev.ct) / ev.cd) : item)
   }
 
-  return out
+  return [...out.values()]
 }

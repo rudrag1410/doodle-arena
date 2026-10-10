@@ -36,6 +36,7 @@ export interface RoomView {
   roomId: string
   phase: Phase
   settings: RoomSettings
+  customWordCount: number
   hostId: string
   youId: string
   players: PublicPlayer[]

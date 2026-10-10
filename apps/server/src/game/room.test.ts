@@ -287,7 +287,7 @@ test('late joiners receive the canvas as it stands', () => {
   }) as never
 
   room.join('Late', 0, late.conn)
-  assert.equal((received as CanvasFull | null)?.shapes.length, 1)
+  assert.equal((received as CanvasFull | null)?.items.length, 1)
 })
 
 test('only the drawer may draw; spectators cannot, strokes are relayed to others', () => {
@@ -323,4 +323,21 @@ test('custom word list is used when custom-only', () => {
   const d = bots.find((b) => b.player.id === room.drawerId)!
 
   assert.deepEqual([...d.view().wordChoices!].sort(), ['alpha', 'bravo', 'charlie'])
+})
+
+test('custom words are visible to the host only, everyone else gets just the count', () => {
+  const host = bot()
+  const guest = bot()
+  const h = room.join('Host', 0, host.conn) as Player
+  const g = room.join('Guest', 0, guest.conn) as Player
+
+  room.updateSettings(h.id, { customWords: TEST_WORDS })
+
+  const hostView = room.viewFor(h)
+  const guestView = room.viewFor(g)
+
+  assert.deepEqual(hostView.settings.customWords, TEST_WORDS)
+  assert.deepEqual(guestView.settings.customWords, [])
+  assert.equal(guestView.customWordCount, TEST_WORDS.length)
+  assert.ok(!JSON.stringify(guestView).includes('giraffe'))
 })
