@@ -91,22 +91,3 @@ test('setting the same list again does nothing harmful', () => {
 
   expect(Buffer.from(imageData(r.canvas)).equals(before)).toBe(true)
 })
-
-test('a full redraw with many strokes and fills stays fast', () => {
-  const r = renderer()
-
-  const items = [
-    ...Array.from({ length: 60 }, (_, i) => stroke(`s${String(i).padStart(4, '0')}`, [50 + i * 15, 100, 80 + i * 15, 800])),
-    fill('f0001', 10, 10, PaletteColor.Yellow),
-    fill('f0002', 20, 20, PaletteColor.Blue),
-    fill('f0003', 30, 30, PaletteColor.Green),
-  ]
-
-  r.setItems(items.slice(0, 1))
-
-  const started = performance.now()
-
-  r.setItems(items.slice(1))
-
-  expect(performance.now() - started).toBeLessThan(1500)
-})

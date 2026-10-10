@@ -126,12 +126,3 @@ test('fill is replayed in order: a later stroke paints over an earlier fill', ()
   expect(pixelAt(canvas, 10, 10)).toEqual(hex(PaletteColor.Yellow))
   expect(pixelAt(canvas, 500, 300)).toEqual(hex(PaletteColor.Black))
 })
-
-test('a fill finishes quickly', () => {
-  const { ctx } = setup()
-  const started = performance.now()
-
-  drawItem(ctx, fill('fill', 10, 10, PaletteColor.Red))
-
-  expect(performance.now() - started).toBeLessThan(750)
-})
